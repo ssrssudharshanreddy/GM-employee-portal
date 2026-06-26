@@ -35,7 +35,7 @@ export default function AEApplicationDetail() {
 
   return (
     <div>
-      <Link href="/ae/applications"><a className="text-sm text-brand-600 hover:underline">← Applications</a></Link>
+      <Link href="/ae/applications" className="text-sm text-brand-600 hover:underline">← Applications</Link>
       <PageHeader
         title={app.company_name}
         subtitle={`Credit setup for new customer`}

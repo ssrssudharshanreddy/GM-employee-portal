@@ -88,8 +88,11 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 30 * 1000,
-      retry: 1,
+      retry: 2,
       refetchOnWindowFocus: false,
+    },
+    mutations: {
+      retry: 2,
     },
   },
 });
@@ -200,6 +203,9 @@ function AppRoutes() {
       </Route>
       <Route path="/cre/customers">
         <RequireAuth roles={['CRE', 'CEO']}><AppShell><CRECustomers /></AppShell></RequireAuth>
+      </Route>
+      <Route path="/cre/team/:id">
+        <RequireAuth roles={['CRE', 'CEO']}><AppShell><CEOEmployeeDetail /></AppShell></RequireAuth>
       </Route>
       <Route path="/cre/team">
         <RequireAuth roles={['CRE', 'CEO']}><AppShell><CRETeam /></AppShell></RequireAuth>

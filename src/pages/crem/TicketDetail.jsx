@@ -44,7 +44,7 @@ export default function CREMTicketDetail() {
 
   return (
     <div>
-      <Link href="/crem/tickets"><a className="text-sm text-brand-600 hover:underline">← Tickets</a></Link>
+      <Link href="/crem/tickets" className="text-sm text-brand-600 hover:underline">← Tickets</Link>
       <PageHeader
         title={ticket.subject}
         subtitle={`${ticket.ticket_number} · ${ticket.company_name}`}

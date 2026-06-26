@@ -34,7 +34,7 @@ export default function CEOOrderDetail() {
 
   return (
     <div>
-      <Link href="/ceo/orders"><a className="text-sm text-brand-600 hover:underline">← Orders</a></Link>
+      <Link href="/ceo/orders" className="text-sm text-brand-600 hover:underline">← Orders</Link>
       <PageHeader
         title={order.order_number}
         subtitle={`Placed on ${formatDate(order.created_at)}`}

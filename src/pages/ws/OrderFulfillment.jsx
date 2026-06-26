@@ -48,7 +48,7 @@ export default function WSOrderFulfillment() {
 
   return (
     <div>
-      <Link href="/ws/orders"><a className="text-sm text-brand-600 hover:underline">← My Orders</a></Link>
+      <Link href="/ws/orders" className="text-sm text-brand-600 hover:underline">← My Orders</Link>
       <PageHeader
         title={order.order_number}
         subtitle={order.company_name}

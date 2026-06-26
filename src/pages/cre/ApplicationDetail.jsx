@@ -25,11 +25,14 @@ export default function CREApplicationDetail() {
   });
 
   const action = useMutation({
-    mutationFn: ({ act, reason, note }) => api.patch(`/applications/${id}/${act}`, { reason, note }),
+    mutationFn: ({ act, reason, note }) => {
+      const status = act === 'approve' ? 'PENDING_ACCOUNTS_REVIEW' : 'REJECTED';
+      return api.patch(`/applications/${id}/review`, { status, notes: note || reason });
+    },
     onSuccess: () => {
       qc.invalidateQueries(['application', id]);
       setModal(null);
-      if (modal === 'approve') navigate(-1);
+      if (modal === 'approve') navigate('/cre/applications');
     },
   });
 
@@ -43,7 +46,7 @@ export default function CREApplicationDetail() {
 
   return (
     <div>
-      <Link href="/cre/applications"><a className="text-sm text-brand-600 hover:underline">← Applications</a></Link>
+      <Link href="/cre/applications" className="text-sm text-brand-600 hover:underline">← Applications</Link>
       <PageHeader
         title={app.company_name}
         subtitle={`Application submitted on ${formatDate(app.created_at)}`}

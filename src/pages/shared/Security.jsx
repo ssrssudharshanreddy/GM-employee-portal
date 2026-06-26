@@ -3,6 +3,7 @@ import { api } from '../../utils/api';
 import { useAuth } from '../../contexts/AuthContext';
 import PageHeader from '../../components/PageHeader';
 import { useLocation } from 'wouter';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function Security() {
   const { logout } = useAuth();
@@ -11,6 +12,15 @@ export default function Security() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState({
+    current_password: false,
+    new_password: false,
+    confirm_password: false
+  });
+
+  const togglePassword = (field) => {
+    setShowPassword(prev => ({ ...prev, [field]: !prev[field] }));
+  };
 
   async function handleChangePassword(e) {
     e.preventDefault();
@@ -25,7 +35,7 @@ export default function Security() {
     }
     setLoading(true);
     try {
-      await api.post('/auth/change-password', {
+      await api.put('/auth/me/password', {
         current_password: form.current_password,
         new_password: form.new_password,
       });
@@ -41,7 +51,7 @@ export default function Security() {
 
   async function handleSignOutAll() {
     try {
-      await api.post('/auth/logout-all', {});
+      await api.post('/auth/logout', {});
       logout();
       navigate('/login');
     } catch (err) {
@@ -68,13 +78,22 @@ export default function Security() {
             ].map(({ key, label }) => (
               <div key={key}>
                 <label className="block text-sm font-medium text-text-secondary mb-1.5">{label} *</label>
-                <input
-                  type="password"
-                  value={form[key]}
-                  onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                  required
-                  className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword[key] ? "text" : "password"}
+                    value={form[key]}
+                    onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                    required
+                    className="w-full px-3 py-2 pr-10 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => togglePassword(key)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary focus:outline-none"
+                  >
+                    {showPassword[key] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
             ))}
             <button

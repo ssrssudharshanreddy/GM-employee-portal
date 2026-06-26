@@ -24,6 +24,8 @@ export default function WEInventory() {
   const columns = [
     { key: 'product_code', label: 'Code', render: (v) => <span className="font-mono text-xs">{v}</span> },
     { key: 'product_name', label: 'Product' },
+    { key: 'category_name', label: 'Category', render: (v) => v || '—' },
+    { key: 'gst_percent', label: 'GST %', render: (v) => v ? `${v}%` : '—' },
     { key: 'quantity', label: 'In Stock', render: (v, row) => (
       <span className={v <= (row.reorder_threshold || 0) ? 'font-bold text-red-600' : 'font-medium'}>
         {formatNumber(v)} {row.unit}

@@ -38,7 +38,7 @@ export default function CREMLeadDetail() {
 
   return (
     <div>
-      <Link href="/crem/leads"><a className="text-sm text-brand-600 hover:underline">← Leads</a></Link>
+      <Link href="/crem/leads" className="text-sm text-brand-600 hover:underline">← Leads</Link>
       <PageHeader
         title={lead.company_name}
         subtitle={lead.contact_person}

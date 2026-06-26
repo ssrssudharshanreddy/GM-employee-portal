@@ -37,7 +37,7 @@ export default function CREMCustomerActivity() {
 
   return (
     <div>
-      <Link href="/crem/customers"><a className="text-sm text-brand-600 hover:underline">← My Customers</a></Link>
+      <Link href="/crem/customers" className="text-sm text-brand-600 hover:underline">← My Customers</Link>
       <PageHeader
         title={c.company_name}
         subtitle={c.contact_person}
@@ -98,13 +98,11 @@ export default function CREMCustomerActivity() {
             ) : (
               <div className="divide-y divide-surface-200">
                 {recentTickets.map(ticket => (
-                  <Link key={ticket.id} href={`/crem/tickets/${ticket.id}`}>
-                    <a className="flex items-center justify-between py-2 hover:bg-surface-50 -mx-1 px-1 rounded">
+                  <Link key={ticket.id} href={`/crem/tickets/${ticket.id}`} className="flex items-center justify-between py-2 hover:bg-surface-50 -mx-1 px-1 rounded">
                       <p className="text-xs font-mono">{ticket.ticket_number}</p>
                       <p className="text-xs truncate max-w-[160px] mx-2">{ticket.subject}</p>
                       <StatusChip status={ticket.status} />
-                    </a>
-                  </Link>
+                    </Link>
                 ))}
               </div>
             )}
@@ -128,21 +126,15 @@ export default function CREMCustomerActivity() {
             ))}
           </div>
 
-          <Link href={`/crem/visits?customer_id=${id}`}>
-            <a className="flex items-center gap-2 w-full p-3 bg-brand-50 text-brand-700 rounded-lg text-sm font-medium hover:bg-brand-100">
+          <Link href={`/crem/visits?customer_id=${id}`} className="flex items-center gap-2 w-full p-3 bg-brand-50 text-brand-700 rounded-lg text-sm font-medium hover:bg-brand-100">
               <MapPin className="w-4 h-4" /> Log a Visit
-            </a>
-          </Link>
-          <Link href={`/crem/follow-ups?customer_id=${id}`}>
-            <a className="flex items-center gap-2 w-full p-3 bg-orange-50 text-orange-700 rounded-lg text-sm font-medium hover:bg-orange-100">
+            </Link>
+          <Link href={`/crem/follow-ups?customer_id=${id}`} className="flex items-center gap-2 w-full p-3 bg-orange-50 text-orange-700 rounded-lg text-sm font-medium hover:bg-orange-100">
               <Phone className="w-4 h-4" /> Log Follow-Up
-            </a>
-          </Link>
-          <Link href={`/crem/tickets?customer_id=${id}`}>
-            <a className="flex items-center gap-2 w-full p-3 bg-purple-50 text-purple-700 rounded-lg text-sm font-medium hover:bg-purple-100">
+            </Link>
+          <Link href={`/crem/tickets?customer_id=${id}`} className="flex items-center gap-2 w-full p-3 bg-purple-50 text-purple-700 rounded-lg text-sm font-medium hover:bg-purple-100">
               <MessageSquare className="w-4 h-4" /> Raise Ticket
-            </a>
-          </Link>
+            </Link>
         </div>
       </div>
     </div>

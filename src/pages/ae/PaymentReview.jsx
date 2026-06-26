@@ -42,7 +42,7 @@ export default function AEPaymentReview() {
 
   return (
     <div>
-      <Link href="/ae/payments"><a className="text-sm text-brand-600 hover:underline">← Payments</a></Link>
+      <Link href="/ae/payments" className="text-sm text-brand-600 hover:underline">← Payments</Link>
       <PageHeader
         title={`Payment from ${payment.company_name}`}
         subtitle={formatDateTime(payment.created_at)}

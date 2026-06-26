@@ -38,7 +38,7 @@ export default function CEOWarehouse() {
         <div className="bg-white rounded-lg shadow-card p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-text-primary">Low Stock Alert</h2>
-            <Link href="/we/inventory"><a className="text-xs text-brand-600 hover:underline">Manage Inventory</a></Link>
+            <Link href="/we/inventory" className="text-xs text-brand-600 hover:underline">Manage Inventory</Link>
           </div>
           {products.length === 0 ? (
             <p className="text-sm text-text-muted text-center py-6">No low stock items</p>
@@ -48,7 +48,11 @@ export default function CEOWarehouse() {
                 <div key={item.id} className="flex items-center justify-between py-3">
                   <div>
                     <p className="text-sm font-medium text-text-primary">{item.product_name || item.name}</p>
-                    <p className="text-xs font-mono text-text-muted">{item.product_code || item.code}</p>
+                    <p className="text-xs font-mono text-text-muted">
+                      {item.product_code || item.code}
+                      {item.category_name && <span className="ml-2 font-sans">• {item.category_name}</span>}
+                      {item.gst_percent ? <span className="ml-2 font-sans">• GST: {item.gst_percent}%</span> : ''}
+                    </p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-mono font-semibold text-red-600">{formatNumber(item.quantity)} units</p>
@@ -71,12 +75,10 @@ export default function CEOWarehouse() {
               { href: '/we/deliveries', label: 'Deliveries', icon: Truck },
               { href: '/we/staff', label: 'WS Staff', icon: Package },
             ].map(({ href, label, icon: Icon }) => (
-              <Link key={href} href={href}>
-                <a className="flex items-center gap-2 p-3 bg-surface-50 hover:bg-surface-100 rounded-lg text-sm font-medium text-text-secondary transition-colors">
+              <Link key={href} href={href} className="flex items-center gap-2 p-3 bg-surface-50 hover:bg-surface-100 rounded-lg text-sm font-medium text-text-secondary transition-colors">
                   <Icon className="w-4 h-4 text-brand-600" />
                   {label}
-                </a>
-              </Link>
+                </Link>
             ))}
           </div>
         </div>

@@ -63,7 +63,7 @@ export default function CEOCustomerDetail() {
   return (
     <div>
       <div className="flex items-center gap-2 mb-1">
-        <Link href="/ceo/customers"><a className="text-sm text-brand-600 hover:underline">← Customers</a></Link>
+        <Link href="/ceo/customers" className="text-sm text-brand-600 hover:underline">← Customers</Link>
       </div>
       <PageHeader
         title={customer.company_name}
@@ -120,15 +120,14 @@ export default function CEOCustomerDetail() {
           <div className="bg-white rounded-lg shadow-card p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-semibold text-text-primary">Recent Orders</h2>
-              <Link href="/ceo/orders"><a className="text-xs text-brand-600 hover:underline">View all</a></Link>
+              <Link href="/ceo/orders" className="text-xs text-brand-600 hover:underline">View all</Link>
             </div>
             {recentOrders.length === 0 ? (
               <p className="text-sm text-text-muted">No orders yet</p>
             ) : (
               <div className="divide-y divide-surface-200">
                 {recentOrders.map(order => (
-                  <Link key={order.id} href={`/ceo/orders/${order.id}`}>
-                    <a className="flex items-center justify-between py-3 hover:bg-surface-50 -mx-1 px-1 rounded">
+                  <Link key={order.id} href={`/ceo/orders/${order.id}`} className="flex items-center justify-between py-3 hover:bg-surface-50 -mx-1 px-1 rounded">
                       <div>
                         <p className="text-sm font-mono">{order.order_number}</p>
                         <p className="text-xs text-text-muted">{formatDate(order.created_at)}</p>
@@ -137,8 +136,7 @@ export default function CEOCustomerDetail() {
                         <span className="text-sm font-medium">{formatCurrency(order.total_amount)}</span>
                         <StatusChip status={order.status} />
                       </div>
-                    </a>
-                  </Link>
+                    </Link>
                 ))}
               </div>
             )}

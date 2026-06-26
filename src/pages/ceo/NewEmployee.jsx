@@ -30,7 +30,7 @@ export default function CEONewEmployee() {
 
   return (
     <div>
-      <Link href="/ceo/employees"><a className="text-sm text-brand-600 hover:underline">← Employees</a></Link>
+      <Link href="/ceo/employees" className="text-sm text-brand-600 hover:underline">← Employees</Link>
       <PageHeader title="Create Employee" subtitle="Add a new employee to the system" />
 
       <div className="max-w-lg bg-white rounded-lg shadow-card p-6">

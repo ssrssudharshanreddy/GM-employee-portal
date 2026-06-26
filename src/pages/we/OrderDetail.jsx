@@ -65,7 +65,7 @@ export default function WEOrderDetail() {
 
   return (
     <div>
-      <Link href="/we/orders"><a className="text-sm text-brand-600 hover:underline">← Orders</a></Link>
+      <Link href="/we/orders" className="text-sm text-brand-600 hover:underline">← Orders</Link>
       <PageHeader
         title={order.order_number}
         subtitle={`${order.company_name} · ${formatDate(order.created_at)}`}

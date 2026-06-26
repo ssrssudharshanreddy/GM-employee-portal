@@ -29,7 +29,7 @@ export default function WEStaffDetail() {
 
   return (
     <div>
-      <Link href="/we/staff"><a className="text-sm text-brand-600 hover:underline">← WS Staff</a></Link>
+      <Link href="/we/staff" className="text-sm text-brand-600 hover:underline">← WS Staff</Link>
       <PageHeader title={emp?.full_name || 'Staff Member'} subtitle={emp?.email} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -36,7 +36,7 @@ export default function AECustomerFinancial() {
 
   return (
     <div>
-      <Link href="/ae/customers"><a className="text-sm text-brand-600 hover:underline">← Customers</a></Link>
+      <Link href="/ae/customers" className="text-sm text-brand-600 hover:underline">← Customers</Link>
       <PageHeader title={c.company_name} subtitle="Financial profile and credit management" />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -45,15 +45,14 @@ export default function AECustomerFinancial() {
           <div className="bg-white rounded-lg shadow-card p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-semibold">Recent Invoices</h2>
-              <Link href="/ae/invoices"><a className="text-xs text-brand-600 hover:underline">All invoices</a></Link>
+              <Link href="/ae/invoices" className="text-xs text-brand-600 hover:underline">All invoices</Link>
             </div>
             {recentInvoices.length === 0 ? (
               <p className="text-sm text-text-muted">No invoices</p>
             ) : (
               <div className="divide-y divide-surface-200">
                 {recentInvoices.map(inv => (
-                  <Link key={inv.id} href={`/ae/invoices/${inv.id}`}>
-                    <a className="flex items-center justify-between py-3 hover:bg-surface-50 -mx-1 px-1 rounded">
+                  <Link key={inv.id} href={`/ae/invoices/${inv.id}`} className="flex items-center justify-between py-3 hover:bg-surface-50 -mx-1 px-1 rounded">
                       <div>
                         <p className="text-xs font-mono">{inv.invoice_number}</p>
                         <p className="text-xs text-text-muted">Due {formatDate(inv.due_date)}</p>
@@ -62,8 +61,7 @@ export default function AECustomerFinancial() {
                         <span className="text-sm font-medium">{formatCurrency(inv.total_amount)}</span>
                         <StatusChip status={inv.status} />
                       </div>
-                    </a>
-                  </Link>
+                    </Link>
                 ))}
               </div>
             )}
@@ -111,11 +109,9 @@ export default function AECustomerFinancial() {
             ))}
           </div>
 
-          <Link href={`/ae/customers/${id}/credit`}>
-            <a className="block w-full px-4 py-2.5 text-sm font-medium text-center bg-brand-600 text-white rounded-md hover:bg-brand-700">
+          <Link href={`/ae/customers/${id}/credit`} className="block w-full px-4 py-2.5 text-sm font-medium text-center bg-brand-600 text-white rounded-md hover:bg-brand-700">
               Manage Credit Terms
-            </a>
-          </Link>
+            </Link>
         </div>
       </div>
     </div>

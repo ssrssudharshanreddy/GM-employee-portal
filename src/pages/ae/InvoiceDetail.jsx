@@ -24,7 +24,7 @@ export default function AEInvoiceDetail() {
 
   return (
     <div>
-      <Link href="/ae/invoices"><a className="text-sm text-brand-600 hover:underline">← Invoices</a></Link>
+      <Link href="/ae/invoices" className="text-sm text-brand-600 hover:underline">← Invoices</Link>
       <PageHeader
         title={inv.invoice_number}
         subtitle={`${inv.company_name} · Due ${formatDate(inv.due_date)}`}

@@ -21,8 +21,8 @@ export default function AlertBanner({ variant = 'info', title, description, acti
         {title && <p className={`text-sm font-semibold ${text}`}>{title}</p>}
         {description && <p className={`text-sm mt-0.5 ${text} opacity-90`}>{description}</p>}
         {action && (
-          <Link href={action.href}>
-            <a className={`text-sm font-medium underline mt-1 inline-block ${text}`}>{action.label}</a>
+          <Link href={action.href} className={`text-sm font-medium underline mt-1 inline-block ${text}`}>
+            {action.label}
           </Link>
         )}
       </div>

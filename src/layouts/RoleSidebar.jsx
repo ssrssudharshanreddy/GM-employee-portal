@@ -81,21 +81,20 @@ const ROLE_COLORS = {
 function NavItem({ item, collapsed, active }) {
   const Icon = item.icon;
   return (
-    <Link href={item.href}>
-      <a
-        className={`
-          flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-          ${active
-            ? 'bg-brand-50 text-brand-700'
-            : 'text-text-secondary hover:bg-surface-100 hover:text-text-primary'
-          }
-          ${collapsed ? 'justify-center' : ''}
-        `}
-        title={collapsed ? item.label : undefined}
-      >
-        <Icon className={`w-5 h-5 flex-shrink-0 ${active ? 'text-brand-600' : ''}`} />
-        {!collapsed && <span>{item.label}</span>}
-      </a>
+    <Link
+      href={item.href}
+      className={`
+        flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+        ${active
+          ? 'bg-brand-50 text-brand-700'
+          : 'text-text-secondary hover:bg-surface-100 hover:text-text-primary'
+        }
+        ${collapsed ? 'justify-center' : ''}
+      `}
+      title={collapsed ? item.label : undefined}
+    >
+      <Icon className={`w-5 h-5 flex-shrink-0 ${active ? 'text-brand-600' : ''}`} />
+      {!collapsed && <span>{item.label}</span>}
     </Link>
   );
 }

@@ -40,7 +40,7 @@ export default function WEProductDetail() {
 
   return (
     <div>
-      <Link href="/we/products"><a className="text-sm text-brand-600 hover:underline">← Products</a></Link>
+      <Link href="/we/products" className="text-sm text-brand-600 hover:underline">← Products</Link>
       <PageHeader title={isNew ? 'New Product' : (form.name || 'Edit Product')} />
 
       <div className="max-w-2xl bg-white rounded-lg shadow-card p-6">

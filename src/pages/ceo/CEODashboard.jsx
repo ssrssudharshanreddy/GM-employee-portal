@@ -20,13 +20,11 @@ function QuickLink({ href, label, icon: Icon, color }) {
     orange: 'bg-orange-50 text-orange-600 hover:bg-orange-100',
   };
   return (
-    <Link href={href}>
-      <a className={`flex items-center gap-3 p-4 rounded-lg font-medium text-sm transition-colors ${colorMap[color] || colorMap.blue}`}>
+    <Link href={href} className={`flex items-center gap-3 p-4 rounded-lg font-medium text-sm transition-colors ${colorMap[color] || colorMap.blue}`}>
         <Icon className="w-5 h-5" />
         {label}
         <ArrowRight className="w-4 h-4 ml-auto" />
-      </a>
-    </Link>
+      </Link>
   );
 }
 
@@ -140,9 +138,7 @@ export default function CEODashboard() {
         <div className="bg-white rounded-lg shadow-card p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-text-primary">Active Alerts</h2>
-            <Link href="/ceo/alerts">
-              <a className="text-xs text-brand-600 hover:underline">View all</a>
-            </Link>
+            <Link href="/ceo/alerts" className="text-xs text-brand-600 hover:underline">View all</Link>
           </div>
           <div className="space-y-3">
             {alertItems.length === 0 && (
@@ -164,24 +160,20 @@ export default function CEODashboard() {
         <div className="bg-white rounded-lg shadow-card p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-text-primary">Recent Orders</h2>
-            <Link href="/ceo/orders">
-              <a className="text-xs text-brand-600 hover:underline">View all</a>
-            </Link>
+            <Link href="/ceo/orders" className="text-xs text-brand-600 hover:underline">View all</Link>
           </div>
           <div className="space-y-3">
             {orders.length === 0 && (
               <p className="text-sm text-text-muted text-center py-4">No recent orders</p>
             )}
             {orders.map((order) => (
-              <Link key={order.id} href={`/ceo/orders/${order.id}`}>
-                <a className="flex items-center justify-between p-3 hover:bg-surface-50 rounded-lg -mx-1">
+              <Link key={order.id} href={`/ceo/orders/${order.id}`} className="flex items-center justify-between p-3 hover:bg-surface-50 rounded-lg -mx-1">
                   <div>
                     <p className="text-sm font-mono font-medium text-text-primary">{order.order_number}</p>
                     <p className="text-xs text-text-muted">{formatDate(order.created_at)}</p>
                   </div>
                   <StatusChip status={order.status} />
-                </a>
-              </Link>
+                </Link>
             ))}
           </div>
         </div>

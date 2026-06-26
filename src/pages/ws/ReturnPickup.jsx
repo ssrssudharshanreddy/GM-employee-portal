@@ -47,7 +47,7 @@ export default function WSReturnPickup() {
 
   return (
     <div>
-      <Link href="/ws/returns"><a className="text-sm text-brand-600 hover:underline">← My Returns</a></Link>
+      <Link href="/ws/returns" className="text-sm text-brand-600 hover:underline">← My Returns</Link>
       <PageHeader
         title={ret.return_number}
         subtitle={ret.company_name}

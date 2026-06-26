@@ -46,7 +46,7 @@ export default function WEReturnReview() {
 
   return (
     <div>
-      <Link href="/we/returns"><a className="text-sm text-brand-600 hover:underline">← Returns</a></Link>
+      <Link href="/we/returns" className="text-sm text-brand-600 hover:underline">← Returns</Link>
       <PageHeader
         title={ret.return_number}
         subtitle={`${ret.company_name} · Requested ${formatDate(ret.created_at)}`}

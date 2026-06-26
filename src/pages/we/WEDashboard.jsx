@@ -41,15 +41,14 @@ export default function WEDashboard() {
         <div className="lg:col-span-2 bg-white rounded-lg shadow-card p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold">Orders Awaiting Processing</h2>
-            <Link href="/we/orders"><a className="text-xs text-brand-600 hover:underline">View all</a></Link>
+            <Link href="/we/orders" className="text-xs text-brand-600 hover:underline">View all</Link>
           </div>
           {orders.length === 0 ? (
             <p className="text-sm text-text-muted text-center py-6">No orders awaiting processing</p>
           ) : (
             <div className="divide-y divide-surface-200">
               {orders.map((order) => (
-                <Link key={order.id} href={`/we/orders/${order.id}`}>
-                  <a className="flex items-center justify-between py-3 hover:bg-surface-50 -mx-1 px-1 rounded">
+                <Link key={order.id} href={`/we/orders/${order.id}`} className="flex items-center justify-between py-3 hover:bg-surface-50 -mx-1 px-1 rounded">
                     <div>
                       <p className="text-sm font-mono font-medium">{order.order_number}</p>
                       <p className="text-xs text-text-muted">{order.company_name} · {formatDate(order.created_at)}</p>
@@ -58,8 +57,7 @@ export default function WEDashboard() {
                       <span className="text-xs text-text-muted">{order.item_count} items</span>
                       <StatusChip status={order.status} />
                     </div>
-                  </a>
-                </Link>
+                  </Link>
               ))}
             </div>
           )}
@@ -77,12 +75,10 @@ export default function WEDashboard() {
               { href: '/we/returns', icon: RotateCcw, label: 'Return Reviews' },
               { href: '/we/staff', icon: UserCheck, label: 'WS Staff' },
             ].map(({ href, icon: Icon, label }) => (
-              <Link key={href} href={href}>
-                <a className="flex items-center gap-3 p-3 hover:bg-surface-50 rounded-lg text-sm font-medium text-text-secondary transition-colors">
+              <Link key={href} href={href} className="flex items-center gap-3 p-3 hover:bg-surface-50 rounded-lg text-sm font-medium text-text-secondary transition-colors">
                   <Icon className="w-4 h-4 text-brand-600" />
                   {label}
-                </a>
-              </Link>
+                </Link>
             ))}
           </div>
         </div>

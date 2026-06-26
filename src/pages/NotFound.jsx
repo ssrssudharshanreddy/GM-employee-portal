@@ -13,10 +13,8 @@ export default function NotFound() {
         <h1 className="text-8xl font-bold text-surface-200">404</h1>
         <h2 className="text-2xl font-semibold text-text-primary mt-4">Page not found</h2>
         <p className="text-text-secondary mt-2 mb-8">The page you're looking for doesn't exist or you don't have access.</p>
-        <Link href={home}>
-          <a className="inline-flex items-center px-4 py-2.5 bg-brand-600 text-white text-sm font-semibold rounded-md hover:bg-brand-700">
-            Go to Dashboard
-          </a>
+        <Link href={home} className="inline-flex items-center px-4 py-2.5 bg-brand-600 text-white text-sm font-semibold rounded-md hover:bg-brand-700">
+          Go to Dashboard
         </Link>
       </div>
     </div>

@@ -32,7 +32,7 @@ export default function WEInventoryDetail() {
 
   return (
     <div>
-      <Link href="/we/inventory"><a className="text-sm text-brand-600 hover:underline">← Inventory</a></Link>
+      <Link href="/we/inventory" className="text-sm text-brand-600 hover:underline">← Inventory</Link>
       <PageHeader title={item.product_name || 'Inventory Item'} subtitle={`SKU: ${item.product_code}`} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

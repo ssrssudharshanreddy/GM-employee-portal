@@ -45,7 +45,7 @@ export default function CREMDashboard() {
         <div className="bg-white rounded-lg shadow-card p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-text-primary">Today's Visits</h2>
-            <Link href="/crem/visits"><a className="text-xs text-brand-600 hover:underline">View all</a></Link>
+            <Link href="/crem/visits" className="text-xs text-brand-600 hover:underline">View all</Link>
           </div>
           {visits.length === 0 ? (
             <p className="text-sm text-text-muted text-center py-6">No visits scheduled today</p>
@@ -69,7 +69,7 @@ export default function CREMDashboard() {
         <div className="bg-white rounded-lg shadow-card p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-text-primary">Pending Follow-Ups</h2>
-            <Link href="/crem/follow-ups"><a className="text-xs text-brand-600 hover:underline">View all</a></Link>
+            <Link href="/crem/follow-ups" className="text-xs text-brand-600 hover:underline">View all</Link>
           </div>
           {followUps.length === 0 ? (
             <p className="text-sm text-text-muted text-center py-6">No pending follow-ups</p>
@@ -99,12 +99,10 @@ export default function CREMDashboard() {
               { href: '/crem/tickets', icon: MessageSquare, label: 'Open Tickets' },
               { href: '/crem/tasks', icon: ClipboardList, label: 'My Tasks' },
             ].map(({ href, icon: Icon, label }) => (
-              <Link key={href} href={href}>
-                <a className="flex items-center gap-3 p-3 hover:bg-surface-50 rounded-lg text-sm font-medium text-text-secondary transition-colors">
+              <Link key={href} href={href} className="flex items-center gap-3 p-3 hover:bg-surface-50 rounded-lg text-sm font-medium text-text-secondary transition-colors">
                   <Icon className="w-4 h-4 text-brand-600" />
                   {label}
-                </a>
-              </Link>
+                </Link>
             ))}
           </div>
         </div>

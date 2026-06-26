@@ -48,11 +48,9 @@ export default function WEProducts() {
         title="Product Catalogue"
         subtitle="All products available for ordering"
         actions={
-          <Link href="/we/products/new">
-            <a className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-md hover:bg-brand-700">
+          <Link href="/we/products/new" className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-md hover:bg-brand-700">
               <Plus className="w-4 h-4" /> Add Product
-            </a>
-          </Link>
+            </Link>
         }
       />
       <FilterBar

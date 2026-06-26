@@ -9,7 +9,9 @@ import ConfirmModal from '../../components/ConfirmModal';
 import { formatDate } from '../../utils/format';
 
 export default function CEOEmployeeDetail() {
-  const [, params] = useRoute('/ceo/employees/:id');
+  const [, ceoParams] = useRoute('/ceo/employees/:id');
+  const [, creParams] = useRoute('/cre/team/:id');
+  const params = ceoParams || creParams;
   const id = params?.id;
   const qc = useQueryClient();
   const [modal, setModal] = useState(null);
@@ -38,7 +40,7 @@ export default function CEOEmployeeDetail() {
 
   return (
     <div>
-      <Link href="/ceo/employees"><a className="text-sm text-brand-600 hover:underline">← Employees</a></Link>
+      <Link href="/ceo/employees" className="text-sm text-brand-600 hover:underline">← Employees</Link>
       <PageHeader
         title={emp.full_name || emp.email}
         subtitle={emp.email}
@@ -77,12 +79,12 @@ export default function CEOEmployeeDetail() {
 
         <dl className="grid grid-cols-2 gap-4">
           {[
-            ['Email', emp.email],
-            ['Phone', emp.phone || '—'],
-            ['Department', emp.department || '—'],
-            ['Status', emp.status],
-            ['Joined', formatDate(emp.created_at)],
-            ['Employee ID', emp.id],
+            ['Email',       emp.email || '—'],
+            ['Phone',       emp.phone || '—'],
+            ['Department',  emp.department_notes || '—'],
+            ['Status',      emp.status],
+            ['Joined',      formatDate(emp.created_at)],
+            ['Employee Code', emp.employee_code || '—'],
           ].map(([label, value]) => (
             <div key={label}>
               <dt className="text-xs text-text-muted">{label}</dt>

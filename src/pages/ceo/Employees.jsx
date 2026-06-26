@@ -28,7 +28,8 @@ export default function CEOEmployees() {
 
   const columns = [
     { key: 'full_name', label: 'Name' },
-    { key: 'email', label: 'Email' },
+    { key: 'email', label: 'Email', render: (v) => v || '—' },
+    { key: 'employee_code', label: 'Emp Code', render: (v) => v || '—' },
     { key: 'role', label: 'Role', render: (v) => <RoleBadge role={v} /> },
     { key: 'status', label: 'Status', render: (v) => <StatusChip status={v} /> },
     { key: 'phone', label: 'Phone', render: (v) => v || '—' },
@@ -41,11 +42,9 @@ export default function CEOEmployees() {
         title="Employee Management"
         subtitle="All employees, their roles and status"
         actions={
-          <Link href="/ceo/employees/new">
-            <a className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-md hover:bg-brand-700">
+          <Link href="/ceo/employees/new" className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-md hover:bg-brand-700">
               <Plus className="w-4 h-4" /> New Employee
-            </a>
-          </Link>
+            </Link>
         }
       />
       <FilterBar

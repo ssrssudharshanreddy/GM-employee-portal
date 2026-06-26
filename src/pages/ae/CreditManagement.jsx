@@ -49,7 +49,7 @@ export default function AECreditManagement() {
 
   return (
     <div>
-      <Link href={`/ae/customers/${id}`}><a className="text-sm text-brand-600 hover:underline">← Customer Profile</a></Link>
+      <Link href={`/ae/customers/${id}`} className="text-sm text-brand-600 hover:underline">← Customer Profile</Link>
       <PageHeader title="Credit Management" subtitle={c?.company_name} />
 
       <div className="max-w-2xl space-y-6">

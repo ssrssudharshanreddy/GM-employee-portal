@@ -39,15 +39,14 @@ export default function AEDashboard() {
         <div className="bg-white rounded-lg shadow-card p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-text-primary">Pending Verifications</h2>
-            <Link href="/ae/payments"><a className="text-xs text-brand-600 hover:underline">View all</a></Link>
+            <Link href="/ae/payments" className="text-xs text-brand-600 hover:underline">View all</Link>
           </div>
           {payments.length === 0 ? (
             <p className="text-sm text-text-muted text-center py-6">No pending verifications</p>
           ) : (
             <div className="divide-y divide-surface-200">
               {payments.map((p) => (
-                <Link key={p.id} href={`/ae/payments/${p.id}`}>
-                  <a className="flex items-center justify-between py-3 hover:bg-surface-50 -mx-1 px-1 rounded">
+                <Link key={p.id} href={`/ae/payments/${p.id}`} className="flex items-center justify-between py-3 hover:bg-surface-50 -mx-1 px-1 rounded">
                     <div>
                       <p className="text-sm font-medium">{p.company_name}</p>
                       <p className="text-xs text-text-muted">{p.payment_method?.replace(/_/g,' ')} · {formatDate(p.created_at)}</p>
@@ -56,8 +55,7 @@ export default function AEDashboard() {
                       <p className="text-sm font-semibold">{formatCurrencyCompact(p.amount)}</p>
                       <StatusChip status={p.status} />
                     </div>
-                  </a>
-                </Link>
+                  </Link>
               ))}
             </div>
           )}
@@ -74,15 +72,13 @@ export default function AEDashboard() {
               { href: '/ae/collections', label: 'Collection Tasks', icon: DollarSign, desc: 'Follow-up on overdue accounts' },
               { href: '/ae/invoices', label: 'Invoice Management', icon: FileText, desc: 'All invoices by status' },
             ].map(({ href, label, icon: Icon, desc }) => (
-              <Link key={href} href={href}>
-                <a className="flex items-center gap-3 p-3 hover:bg-surface-50 rounded-lg transition-colors">
+              <Link key={href} href={href} className="flex items-center gap-3 p-3 hover:bg-surface-50 rounded-lg transition-colors">
                   <Icon className="w-5 h-5 text-brand-600 flex-shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-text-primary">{label}</p>
                     <p className="text-xs text-text-muted">{desc}</p>
                   </div>
-                </a>
-              </Link>
+                </Link>
             ))}
           </div>
         </div>

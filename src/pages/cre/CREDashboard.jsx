@@ -38,22 +38,20 @@ export default function CREDashboard() {
         <div className="bg-white rounded-lg shadow-card p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-text-primary">Pending Applications</h2>
-            <Link href="/cre/applications"><a className="text-xs text-brand-600 hover:underline">View all</a></Link>
+            <Link href="/cre/applications" className="text-xs text-brand-600 hover:underline">View all</Link>
           </div>
           {apps.length === 0 ? (
             <p className="text-sm text-text-muted text-center py-6">No pending applications</p>
           ) : (
             <div className="divide-y divide-surface-200">
               {apps.map((app) => (
-                <Link key={app.id} href={`/cre/applications/${app.id}`}>
-                  <a className="flex items-center justify-between py-3 hover:bg-surface-50 -mx-1 px-1 rounded">
+                <Link key={app.id} href={`/cre/applications/${app.id}`} className="flex items-center justify-between py-3 hover:bg-surface-50 -mx-1 px-1 rounded">
                     <div>
                       <p className="text-sm font-medium text-text-primary">{app.company_name}</p>
                       <p className="text-xs text-text-muted">{formatDate(app.created_at)}</p>
                     </div>
                     <StatusChip status={app.status} />
-                  </a>
-                </Link>
+                  </Link>
               ))}
             </div>
           )}
@@ -69,15 +67,13 @@ export default function CREDashboard() {
               { href: '/cre/escalations', label: 'Escalations', icon: AlertTriangle, desc: 'Handle escalated tickets' },
               { href: '/cre/reports', label: 'Reports', icon: BarChart2, desc: 'Application and performance stats' },
             ].map(({ href, label, icon: Icon, desc }) => (
-              <Link key={href} href={href}>
-                <a className="flex items-center gap-3 p-3 hover:bg-surface-50 rounded-lg transition-colors">
+              <Link key={href} href={href} className="flex items-center gap-3 p-3 hover:bg-surface-50 rounded-lg transition-colors">
                   <Icon className="w-5 h-5 text-brand-600 flex-shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-text-primary">{label}</p>
                     <p className="text-xs text-text-muted">{desc}</p>
                   </div>
-                </a>
-              </Link>
+                </Link>
             ))}
           </div>
         </div>
