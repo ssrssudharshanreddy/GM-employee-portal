@@ -14,8 +14,8 @@ export default function CRETeam() {
     queryFn: () => api.get('/employees', { role: 'CREM' }),
   });
 
-  const crems = data?.employees || data?.data || [];
-  const total = data?.total || crems.length;
+  const crems = Array.isArray(data) ? data : (data?.data || data?.employees || []);
+  const total = data?.total || data?.pagination?.total || crems.length;
 
   const columns = [
     { key: 'full_name', label: 'Name' },

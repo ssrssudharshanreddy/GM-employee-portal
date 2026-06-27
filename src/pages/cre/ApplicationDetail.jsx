@@ -67,10 +67,9 @@ export default function CREApplicationDetail() {
         }
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          {/* Company Info */}
-          <div className="bg-white rounded-lg shadow-card p-6">
+      <div className="space-y-6">
+        {/* Company Info */}
+        <div className="bg-white rounded-lg shadow-card p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-semibold">Company Details</h2>
               <StatusChip status={app.status} />
@@ -104,11 +103,11 @@ export default function CREApplicationDetail() {
                 {(app.documents || []).map((doc, i) => (
                   <div key={i} className="flex items-center justify-between py-3">
                     <div>
-                      <p className="text-sm font-medium">{doc.document_type}</p>
-                      <p className="text-xs text-text-muted">{formatDate(doc.uploaded_at)}</p>
+                      <p className="text-sm font-medium">{doc.document_type?.replace(/_/g, ' ')}</p>
+                      <p className="text-xs text-text-muted">{doc.file_name} · {formatDate(doc.uploaded_at || doc.created_at)}</p>
                     </div>
                     {doc.file_url && (
-                      <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="text-xs text-brand-600 hover:underline">
+                      <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="text-xs text-brand-600 hover:underline font-medium">
                         View
                       </a>
                     )}
@@ -117,24 +116,6 @@ export default function CREApplicationDetail() {
               </div>
             )}
           </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="bg-white rounded-lg shadow-card p-5">
-            <h2 className="text-sm font-semibold mb-3">Application Timeline</h2>
-            <div className="space-y-3">
-              {(app.timeline || []).map((event, i) => (
-                <div key={i} className="flex gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-brand-600 mt-1.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-xs font-medium">{event.status}</p>
-                    <p className="text-xs text-text-muted">{formatDate(event.timestamp)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Approve Modal */}
