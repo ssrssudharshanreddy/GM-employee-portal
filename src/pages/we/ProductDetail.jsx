@@ -3,19 +3,25 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRoute, Link, useLocation } from 'wouter';
 import { api } from '../../utils/api';
 import PageHeader from '../../components/PageHeader';
+import { Zap } from 'lucide-react';
 
-const UNITS = ['Litre', 'Kg', 'Piece', 'Box', 'Pack', 'Bottle', 'Drum', 'Can', 'Tonne', 'Meter'];
+const UNITS = [
+  'Litre', '500 ml', '200 ml', '100 ml',
+  'Kg', '500 g', '250 g',
+  'Piece', 'Pack', 'Box', 'Carton',
+  'Bottle', 'Drum', 'Can', 'Pouch',
+  'Dozen', 'Tonne',
+];
+
 const GST_RATES = [0, 5, 12, 18, 28];
 
 const EMPTY_FORM = {
   name: '',
-  product_code: '',
   category_id: '',
   unit: 'Litre',
   price: '',
   gst_percent: 18,
-  hsn_code: '',
-  min_order_qty: 1,
+  initial_quantity: '',
   description: '',
   is_active: true,
 };
@@ -49,13 +55,11 @@ export default function WEProductDetail() {
       const p = data?.product || data;
       setForm({
         name: p.name || '',
-        product_code: p.product_code || '',
         category_id: p.category_id || '',
         unit: p.unit || 'Litre',
         price: p.price || '',
         gst_percent: p.gst_rate ?? p.gst_percent ?? 18,
-        hsn_code: p.hsn_code || '',
-        min_order_qty: p.min_order_qty || 1,
+        initial_quantity: '',   // only relevant on create
         description: p.description || '',
         is_active: p.is_active !== false,
       });
@@ -66,6 +70,7 @@ export default function WEProductDetail() {
     mutationFn: (d) => isNew ? api.post('/products', d) : api.patch(`/products/${id}`, d),
     onSuccess: (res) => {
       qc.invalidateQueries(['products']);
+      qc.invalidateQueries(['inventory']);
       const savedId = res?.id || res?.product?.id || id;
       navigate(savedId && savedId !== 'new' ? `/we/products/${savedId}` : '/we/products');
     },
@@ -76,14 +81,23 @@ export default function WEProductDetail() {
     e.preventDefault();
     setError('');
     if (!form.category_id) { setError('Please select a category'); return; }
-    save.mutate({
-      ...form,
+
+    const payload = {
+      name: form.name,
+      category_id: form.category_id,
+      unit: form.unit,
       price: Number(form.price),
       gst_rate: Number(form.gst_percent),
-      min_order_qty: Number(form.min_order_qty),
-      hsn_code: form.hsn_code || null,
       description: form.description || null,
-    });
+      is_active: form.is_active,
+    };
+
+    // Only send initial_quantity on create
+    if (isNew && form.initial_quantity !== '') {
+      payload.initial_quantity = Number(form.initial_quantity);
+    }
+
+    save.mutate(payload);
   }
 
   if (!isNew && isLoading) {
@@ -97,100 +111,160 @@ export default function WEProductDetail() {
     );
   }
 
+  const product = (!isNew && data) ? (data?.product || data) : null;
+
   return (
     <div>
       <Link href="/we/products" className="text-sm text-brand-600 hover:underline">← Products</Link>
-      <PageHeader title={isNew ? 'New Product' : (form.name || 'Edit Product')} subtitle={isNew ? 'Add a product to the catalogue' : form.product_code} />
+      <PageHeader
+        title={isNew ? 'New Product' : (form.name || 'Edit Product')}
+        subtitle={isNew ? 'Product code will be auto-generated' : product?.product_code}
+      />
+
+      {/* Auto-generated code badge (edit mode) */}
+      {!isNew && product?.product_code && (
+        <div className="mb-4 inline-flex items-center gap-2 px-3 py-1.5 bg-surface-50 border border-surface-200 rounded-md">
+          <Zap className="w-3.5 h-3.5 text-brand-500" />
+          <span className="text-xs font-mono font-medium text-text-secondary">{product.product_code}</span>
+        </div>
+      )}
 
       <div className="max-w-2xl bg-white rounded-lg shadow-card p-6">
         {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Row 1: Name + Code */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">Product Name <span className="text-red-500">*</span></label>
-              <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required
-                className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">Product Code <span className="text-red-500">*</span></label>
-              <input value={form.product_code} onChange={e => setForm({ ...form, product_code: e.target.value })} required
-                disabled={!isNew}
-                className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:bg-surface-50 disabled:text-text-muted" />
-            </div>
+
+          {/* Product Name */}
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-1.5">
+              Product Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              value={form.name}
+              onChange={e => setForm({ ...form, name: e.target.value })}
+              required
+              placeholder="e.g. Laundry Liquid Detergent"
+              className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500"
+            />
           </div>
 
           {/* Category */}
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1.5">Category <span className="text-red-500">*</span></label>
-            <select value={form.category_id} onChange={e => setForm({ ...form, category_id: e.target.value })} required
-              className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+            <label className="block text-sm font-medium text-text-secondary mb-1.5">
+              Category <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={form.category_id}
+              onChange={e => setForm({ ...form, category_id: e.target.value })}
+              required
+              className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
+            >
               <option value="">— Select a category —</option>
               {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
             {categories.length === 0 && (
-              <p className="text-xs text-amber-600 mt-1">No categories yet. <Link href="/we/categories" className="underline">Create one first →</Link></p>
+              <p className="text-xs text-amber-600 mt-1">
+                No categories yet. <Link href="/we/categories" className="underline">Create one first →</Link>
+              </p>
             )}
           </div>
 
-          {/* Row 2: Unit + Price + GST */}
+          {/* Unit + Price + GST */}
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">Unit <span className="text-red-500">*</span></label>
-              <select value={form.unit} onChange={e => setForm({ ...form, unit: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                Unit <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={form.unit}
+                onChange={e => setForm({ ...form, unit: e.target.value })}
+                className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
+              >
                 {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">Price (₹) <span className="text-red-500">*</span></label>
-              <input type="number" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} required min={0} step="0.01"
-                className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500" />
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                Price (₹) <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                value={form.price}
+                onChange={e => setForm({ ...form, price: e.target.value })}
+                required min={0} step="0.01"
+                placeholder="0.00"
+                className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-1.5">GST %</label>
-              <select value={form.gst_percent} onChange={e => setForm({ ...form, gst_percent: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+              <select
+                value={form.gst_percent}
+                onChange={e => setForm({ ...form, gst_percent: e.target.value })}
+                className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
+              >
                 {GST_RATES.map(g => <option key={g} value={g}>{g}%</option>)}
               </select>
             </div>
           </div>
 
-          {/* Row 3: HSN + Min Order Qty */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Initial Quantity — create only */}
+          {isNew && (
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">HSN Code</label>
-              <input value={form.hsn_code} onChange={e => setForm({ ...form, hsn_code: e.target.value })} placeholder="e.g. 27101990"
-                className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500" />
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                Initial Stock Quantity
+                <span className="ml-1 text-xs font-normal text-text-muted">(optional — can be set later in Inventory)</span>
+              </label>
+              <input
+                type="number"
+                value={form.initial_quantity}
+                onChange={e => setForm({ ...form, initial_quantity: e.target.value })}
+                min={0} step={1}
+                placeholder="0"
+                className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500"
+              />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">Min Order Qty</label>
-              <input type="number" value={form.min_order_qty} onChange={e => setForm({ ...form, min_order_qty: e.target.value })} min={1} step={1}
-                className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500" />
-            </div>
-          </div>
+          )}
 
           {/* Description */}
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1.5">Description</label>
-            <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={3}
-              className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none" />
+            <textarea
+              value={form.description}
+              onChange={e => setForm({ ...form, description: e.target.value })}
+              rows={3}
+              placeholder="Short description of the product..."
+              className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
+            />
           </div>
 
           {/* Active toggle */}
           <div className="flex items-center gap-2">
-            <input type="checkbox" id="is_active" checked={form.is_active} onChange={e => setForm({ ...form, is_active: e.target.checked })} className="w-4 h-4 accent-brand-600" />
-            <label htmlFor="is_active" className="text-sm font-medium text-text-secondary">Active (visible for ordering)</label>
+            <input
+              type="checkbox"
+              id="is_active"
+              checked={form.is_active}
+              onChange={e => setForm({ ...form, is_active: e.target.checked })}
+              className="w-4 h-4 accent-brand-600"
+            />
+            <label htmlFor="is_active" className="text-sm font-medium text-text-secondary">
+              Active <span className="font-normal text-text-muted">(visible for ordering)</span>
+            </label>
           </div>
 
           <div className="flex gap-3 pt-2 border-t border-surface-100">
-            <button type="submit" disabled={save.isPending}
-              className="px-4 py-2 text-sm font-medium bg-brand-600 text-white rounded-md hover:bg-brand-700 disabled:opacity-50 transition-colors">
+            <button
+              type="submit"
+              disabled={save.isPending}
+              className="px-4 py-2 text-sm font-medium bg-brand-600 text-white rounded-md hover:bg-brand-700 disabled:opacity-50 transition-colors"
+            >
               {save.isPending ? 'Saving…' : isNew ? 'Create Product' : 'Save Changes'}
             </button>
-            <button type="button" onClick={() => navigate('/we/products')}
-              className="px-4 py-2 text-sm font-medium bg-surface-100 text-text-secondary rounded-md hover:bg-surface-200 transition-colors">
+            <button
+              type="button"
+              onClick={() => navigate('/we/products')}
+              className="px-4 py-2 text-sm font-medium bg-surface-100 text-text-secondary rounded-md hover:bg-surface-200 transition-colors"
+            >
               Cancel
             </button>
           </div>
