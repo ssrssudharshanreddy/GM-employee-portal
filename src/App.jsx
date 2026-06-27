@@ -27,6 +27,7 @@ import CREDashboard from './pages/cre/CREDashboard';
 import CREApplications from './pages/cre/Applications';
 import CREApplicationDetail from './pages/cre/ApplicationDetail';
 import CRECustomers from './pages/cre/Customers';
+import CRECustomerDetail from './pages/cre/CustomerDetail';
 import CRETeam from './pages/cre/Team';
 import CREEscalations from './pages/cre/Escalations';
 import CRETickets from './pages/cre/Tickets';
@@ -199,7 +200,7 @@ function AppRoutes() {
         <RequireAuth roles={['CRE', 'CEO']}><AppShell><CREApplications /></AppShell></RequireAuth>
       </Route>
       <Route path="/cre/customers/:id">
-        <RequireAuth roles={['CRE', 'CEO']}><AppShell><CEOCustomerDetail /></AppShell></RequireAuth>
+        <RequireAuth roles={['CRE', 'CEO']}><AppShell><CRECustomerDetail /></AppShell></RequireAuth>
       </Route>
       <Route path="/cre/customers">
         <RequireAuth roles={['CRE', 'CEO']}><AppShell><CRECustomers /></AppShell></RequireAuth>

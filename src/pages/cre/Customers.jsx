@@ -19,8 +19,8 @@ export default function CRECustomers() {
     queryFn: () => api.get('/customers', { search, status: status || undefined, page, limit: 20 }),
   });
 
-  const customers = data?.customers || data?.data || [];
-  const total = data?.total || 0;
+  const customers = data?.data ?? [];
+  const total = data?.total ?? 0;
 
   const columns = [
     { key: 'company_name', label: 'Company' },
