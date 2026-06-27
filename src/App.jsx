@@ -199,7 +199,7 @@ function AppRoutes() {
         <RequireAuth roles={['CRE', 'CEO']}><AppShell><CREApplications /></AppShell></RequireAuth>
       </Route>
       <Route path="/cre/customers/:id">
-        <RequireAuth roles={['CRE', 'CEO']}><AppShell><CREApplicationDetail /></AppShell></RequireAuth>
+        <RequireAuth roles={['CRE', 'CEO']}><AppShell><CEOCustomerDetail /></AppShell></RequireAuth>
       </Route>
       <Route path="/cre/customers">
         <RequireAuth roles={['CRE', 'CEO']}><AppShell><CRECustomers /></AppShell></RequireAuth>
