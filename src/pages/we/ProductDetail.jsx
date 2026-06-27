@@ -1,38 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRoute, Link, useLocation } from 'wouter';
 import { api } from '../../utils/api';
 import PageHeader from '../../components/PageHeader';
-import { Zap, AlertTriangle } from 'lucide-react';
+import { Zap, AlertTriangle, UploadCloud, X } from 'lucide-react';
 
-// Unit options — common for cleaning / FMCG products
-const UNITS = [
-  'Litre (L)',
-  '500 mL',
-  '250 mL',
-  '200 mL',
-  '100 mL',
-  '50 mL',
-  'Kg',
-  '500 g',
-  '250 g',
-  '100 g',
-  'Piece',
-  'Pack',
-  'Box',
-  'Carton',
-  'Bottle',
-  'Drum',
-  'Can',
-  'Pouch / Sachet',
-  'Bag',
-  'Dozen',
+const BASE_UNITS = [
+  'Litre', 'mL', 'Kg', 'Gram', 'Piece', 'Pack', 'Box', 'Carton', 
+  'Bottle', 'Drum', 'Can', 'Pouch / Sachet', 'Bag', 'Dozen'
 ];
 
 const EMPTY_FORM = {
   name: '',
   category_id: '',
-  unit: 'Litre (L)',
+  pack_size: '',
+  unit: 'Litre',
   price: '',
   gst_percent: '18',
   quantity: '',
@@ -47,10 +29,17 @@ export default function WEProductDetail() {
   const isNew = id === 'new';
   const qc = useQueryClient();
   const [, navigate] = useLocation();
+  
   const [form, setForm] = useState(EMPTY_FORM);
   const [error, setError] = useState('');
+  
+  // Image states
+  const [existingImages, setExistingImages] = useState([]);
+  const [deletedImages, setDeletedImages] = useState([]);
+  const [newFiles, setNewFiles] = useState([]);
+  const fileInputRef = useRef(null);
 
-  // Fetch existing product (edit mode)
+  // Fetch existing product
   const { data, isLoading } = useQuery({
     queryKey: ['product', id],
     queryFn: () => api.get(`/products/${id}`),
@@ -72,19 +61,21 @@ export default function WEProductDetail() {
       setForm({
         name: p.name || '',
         category_id: p.category_id || '',
-        unit: p.unit || 'Litre (L)',
+        pack_size: p.specifications?.pack_size ?? '',
+        unit: p.unit || 'Litre',
         price: p.price || '',
         gst_percent: String(p.gst_rate ?? p.gst_percent ?? 18),
-        quantity: '',          // adjustment — left blank; current shown as read-only
+        quantity: '',
         low_stock_alert: inv?.reorder_threshold ?? '',
         description: p.description || '',
         is_active: p.is_active !== false,
       });
+      setExistingImages(p.images || []);
     }
   }, [data]);
 
   const save = useMutation({
-    mutationFn: (d) => isNew ? api.post('/products', d) : api.patch(`/products/${id}`, d),
+    mutationFn: (formData) => isNew ? api.upload('/products', formData, 'POST') : api.upload(`/products/${id}`, formData, 'PATCH'),
     onSuccess: (res) => {
       qc.invalidateQueries(['products']);
       qc.invalidateQueries(['inventory']);
@@ -94,10 +85,27 @@ export default function WEProductDetail() {
     onError: (err) => setError(err.message || 'Failed to save product'),
   });
 
+  function handleFileChange(e) {
+    if (e.target.files) {
+      setNewFiles(prev => [...prev, ...Array.from(e.target.files)]);
+    }
+  }
+
+  function removeNewFile(index) {
+    setNewFiles(prev => prev.filter((_, i) => i !== index));
+  }
+
+  function removeExistingImage(imgUrl) {
+    setExistingImages(prev => prev.filter(url => url !== imgUrl));
+    setDeletedImages(prev => [...prev, imgUrl]);
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
     setError('');
+    
     if (!form.category_id) { setError('Please select a category'); return; }
+    if (!form.pack_size) { setError('Please enter a pack size'); return; }
 
     const gstVal = parseFloat(form.gst_percent);
     if (isNaN(gstVal) || gstVal < 0 || gstVal > 100) {
@@ -105,20 +113,30 @@ export default function WEProductDetail() {
       return;
     }
 
-    const payload = {
-      name: form.name,
-      category_id: form.category_id,
-      unit: form.unit,
-      price: Number(form.price),
-      gst_rate: gstVal,
-      description: form.description || null,
-      is_active: form.is_active,
-    };
+    const formData = new FormData();
+    formData.append('name', form.name);
+    formData.append('category_id', form.category_id);
+    formData.append('pack_size', form.pack_size);
+    formData.append('unit', form.unit);
+    formData.append('price', form.price);
+    formData.append('gst_rate', gstVal);
+    formData.append('is_active', form.is_active);
+    
+    if (form.description) formData.append('description', form.description);
+    if (form.quantity !== '') formData.append('initial_quantity', form.quantity);
+    if (form.low_stock_alert !== '') formData.append('reorder_threshold', form.low_stock_alert);
 
-    if (form.quantity !== '') payload.initial_quantity = Number(form.quantity);
-    if (form.low_stock_alert !== '') payload.reorder_threshold = Number(form.low_stock_alert);
+    // Append new files
+    newFiles.forEach(file => {
+      formData.append('files', file);
+    });
 
-    save.mutate(payload);
+    // Append deleted existing images (as JSON string so backend can parse it)
+    if (deletedImages.length > 0) {
+      formData.append('deleted_images', JSON.stringify(deletedImages));
+    }
+
+    save.mutate(formData);
   }
 
   if (!isNew && isLoading) {
@@ -153,62 +171,74 @@ export default function WEProductDetail() {
         </div>
       )}
 
-      <div className="max-w-2xl bg-white rounded-lg shadow-card p-6">
+      <div className="max-w-3xl bg-white rounded-lg shadow-card p-6">
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-6">
 
-          {/* Product Name */}
-          <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1.5">
-              Product Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              value={form.name}
-              onChange={e => setForm({ ...form, name: e.target.value })}
-              required
-              placeholder="e.g. Laundry Liquid Detergent"
-              className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500"
-            />
-          </div>
-
-          {/* Category */}
-          <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1.5">
-              Category <span className="text-red-500">*</span>
-            </label>
-            <select
-              value={form.category_id}
-              onChange={e => setForm({ ...form, category_id: e.target.value })}
-              required
-              className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
-            >
-              <option value="">— Select a category —</option>
-              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-            {categories.length === 0 && (
-              <p className="text-xs text-amber-600 mt-1">
-                No categories yet. <Link href="/we/categories" className="underline">Create one first →</Link>
-              </p>
-            )}
-          </div>
-
-          {/* Unit + Price + GST */}
-          <div className="grid grid-cols-3 gap-4">
+          {/* Product Name & Category */}
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-1.5">
-                Unit <span className="text-red-500">*</span>
+                Product Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                value={form.name}
+                onChange={e => setForm({ ...form, name: e.target.value })}
+                required
+                placeholder="e.g. Liquid Detergent"
+                className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                Category <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={form.category_id}
+                onChange={e => setForm({ ...form, category_id: e.target.value })}
+                required
+                className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
+              >
+                <option value="">— Select a category —</option>
+                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Pack Size & Unit */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                Pack Size (Amount) <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                value={form.pack_size}
+                onChange={e => setForm({ ...form, pack_size: e.target.value })}
+                required min={0.01} step="any"
+                placeholder="e.g. 5"
+                className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                Base Unit <span className="text-red-500">*</span>
               </label>
               <select
                 value={form.unit}
                 onChange={e => setForm({ ...form, unit: e.target.value })}
                 className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
               >
-                {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                {BASE_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
               </select>
             </div>
+          </div>
+
+          {/* Price & GST */}
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-1.5">
                 Price (₹) <span className="text-red-500">*</span>
@@ -237,6 +267,61 @@ export default function WEProductDetail() {
             </div>
           </div>
 
+          {/* Product Images */}
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-2">Product Images</label>
+            <div className="border-2 border-dashed border-surface-200 rounded-lg p-6 bg-surface-50 text-center">
+              <UploadCloud className="w-8 h-8 text-text-muted mx-auto mb-2" />
+              <p className="text-sm text-text-secondary mb-4">Drag & drop or click to upload images</p>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+                ref={fileInputRef}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="px-4 py-2 text-sm font-medium bg-white border border-surface-200 rounded-md hover:bg-surface-50 text-brand-600 transition-colors"
+              >
+                Browse Files
+              </button>
+            </div>
+
+            {/* Image Previews */}
+            {(existingImages.length > 0 || newFiles.length > 0) && (
+              <div className="mt-4 grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-4">
+                {existingImages.map((url, i) => (
+                  <div key={`exist-${i}`} className="relative group rounded-md overflow-hidden border border-surface-200 aspect-square">
+                    <img src={url} alt={`Product ${i}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeExistingImage(url)}
+                      className="absolute top-1 right-1 p-1 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+                {newFiles.map((file, i) => (
+                  <div key={`new-${i}`} className="relative group rounded-md overflow-hidden border border-surface-200 aspect-square">
+                    <img src={URL.createObjectURL(file)} alt={`New upload ${i}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeNewFile(i)}
+                      className="absolute top-1 right-1 p-1 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="absolute bottom-0 inset-x-0 bg-brand-500 text-white text-[10px] text-center py-0.5">NEW</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Quantity + Low Stock Alert */}
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -244,7 +329,6 @@ export default function WEProductDetail() {
                 {isNew ? 'Initial Stock Quantity' : 'Add / Adjust Quantity'}
                 <span className="ml-1 text-xs font-normal text-text-muted">(units)</span>
               </label>
-              {/* Current stock display (edit mode) */}
               {!isNew && currentQty !== null && (
                 <div className="mb-1.5 flex items-center gap-2 text-xs text-text-muted">
                   <span>Current stock: <span className="font-semibold text-text-primary">{currentQty - currentReserved}</span> available ({currentReserved} reserved)</span>

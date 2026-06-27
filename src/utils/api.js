@@ -87,10 +87,10 @@ export const api = {
   put: (path, data) => request(path, { method: 'PUT', body: JSON.stringify(data) }),
   patch: (path, data) => request(path, { method: 'PATCH', body: JSON.stringify(data) }),
   delete: (path) => request(path, { method: 'DELETE' }),
-  upload: (path, formData) => {
+  upload: (path, formData, method = 'POST') => {
     const token = getToken();
     return fetch(`${BASE_URL}${path}`, {
-      method: 'POST',
+      method,
       headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: formData,
     }).then(async (res) => {

@@ -29,10 +29,32 @@ export default function WEProducts() {
   const catOptions = (categories?.data ?? []).map(c => ({ value: c.id, label: c.name }));
 
   const columns = [
+    { 
+      key: 'image', 
+      label: '', 
+      render: (_, row) => (
+        <div className="w-10 h-10 rounded overflow-hidden bg-surface-100 flex items-center justify-center border border-surface-200">
+          {row.images?.[0] ? (
+            <img src={row.images[0]} alt={row.name} className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-[10px] text-text-muted">No Img</span>
+          )}
+        </div>
+      )
+    },
     { key: 'product_code', label: 'Code', render: (v) => <span className="font-mono text-xs">{v}</span> },
     { key: 'name', label: 'Product Name' },
     { key: 'category_name', label: 'Category', render: (v) => v || '—' },
-    { key: 'unit', label: 'Unit' },
+    { 
+      key: 'unit', 
+      label: 'Size', 
+      render: (_, row) => (
+        <span>
+          {row.specifications?.pack_size ? `${row.specifications.pack_size} ` : ''}
+          {row.unit}
+        </span>
+      )
+    },
     { key: 'price', label: 'Price', render: (v) => formatCurrency(v) },
     { key: 'gst_percent', label: 'GST %', render: (v) => v ? `${v}%` : '—' },
     { key: 'is_active', label: 'Active', render: (v) => (
