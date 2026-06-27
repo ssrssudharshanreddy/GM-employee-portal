@@ -14,8 +14,8 @@ export default function WEStaff() {
     queryFn: () => api.get('/employees', { role: 'WS' }),
   });
 
-  const staff = data?.employees || data?.data || [];
-  const total = data?.total || staff.length;
+  const staff = data?.data ?? [];
+  const total = data?.total ?? staff.length;
 
   const columns = [
     { key: 'full_name', label: 'Name' },

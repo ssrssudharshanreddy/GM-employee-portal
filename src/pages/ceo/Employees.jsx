@@ -23,8 +23,8 @@ export default function CEOEmployees() {
     queryFn: () => api.get('/employees', { search, role: role || undefined, page, limit: 20 }),
   });
 
-  const employees = data?.employees || data?.data || [];
-  const total = data?.total || 0;
+  const employees = data?.data ?? [];
+  const total = data?.total ?? 0;
 
   const columns = [
     { key: 'full_name', label: 'Name' },
