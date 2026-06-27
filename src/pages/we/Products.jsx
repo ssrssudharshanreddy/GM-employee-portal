@@ -24,9 +24,9 @@ export default function WEProducts() {
     queryFn: () => api.get('/categories'),
   });
 
-  const products = data?.products || data?.data || [];
-  const total = data?.total || 0;
-  const catOptions = (categories?.categories || categories?.data || []).map(c => ({ value: c.id, label: c.name }));
+  const products = data?.data ?? [];
+  const total = data?.total ?? 0;
+  const catOptions = (categories?.data ?? []).map(c => ({ value: c.id, label: c.name }));
 
   const columns = [
     { key: 'product_code', label: 'Code', render: (v) => <span className="font-mono text-xs">{v}</span> },

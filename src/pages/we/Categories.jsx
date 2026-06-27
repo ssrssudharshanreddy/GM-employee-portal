@@ -27,7 +27,7 @@ export default function WECategories() {
     onSuccess: () => { qc.invalidateQueries(['categories']); setEditing(null); },
   });
 
-  const categories = data?.categories || data?.data || [];
+  const categories = data?.data ?? [];
 
   return (
     <div>
