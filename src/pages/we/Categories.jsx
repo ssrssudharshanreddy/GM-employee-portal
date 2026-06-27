@@ -147,12 +147,12 @@ export default function WECategories() {
         ) : (
           <div className="divide-y divide-surface-200">
             {categories.map((cat) => (
-              <div key={cat.id} className="group flex items-center justify-between px-6 py-4 hover:bg-surface-50 transition-colors">
+              <div key={cat.id} className="group flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-6 py-4 hover:bg-surface-50 transition-colors gap-4 sm:gap-0">
                 
                 {editing === cat.id ? (
-                  <div className="flex-1 mr-8">
-                    <div className="flex items-start gap-4">
-                      <div className="flex-1 space-y-3">
+                  <div className="flex-1 sm:mr-8 w-full">
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                      <div className="flex-1 space-y-3 w-full">
                         <div>
                           <label className="block text-xs font-medium text-text-muted mb-1">Name</label>
                           <input 
@@ -173,18 +173,18 @@ export default function WECategories() {
                           />
                         </div>
                       </div>
-                      <div className="flex flex-col gap-2 pt-5">
+                      <div className="flex flex-row sm:flex-col gap-2 sm:pt-5">
                         <button 
                           onClick={() => update.mutate({ id: cat.id, data: editForm })} 
                           disabled={update.isPending}
-                          className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-brand-600 text-white text-xs font-medium rounded-md hover:bg-brand-700 disabled:opacity-50 transition-colors"
+                          className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-brand-600 text-white text-xs font-medium rounded-md hover:bg-brand-700 disabled:opacity-50 transition-colors"
                         >
                           <Check className="w-3.5 h-3.5" /> Save
                         </button>
                         <button 
                           onClick={() => setEditing(null)} 
                           disabled={update.isPending}
-                          className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-surface-200 text-text-secondary text-xs font-medium rounded-md hover:bg-surface-300 transition-colors"
+                          className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-surface-200 text-text-secondary text-xs font-medium rounded-md hover:bg-surface-300 transition-colors"
                         >
                           <X className="w-3.5 h-3.5" /> Cancel
                         </button>
@@ -192,20 +192,20 @@ export default function WECategories() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex-1 mr-6 pr-4 border-r border-transparent group-hover:border-surface-200 transition-colors">
+                  <div className="flex-1 sm:mr-6 pr-0 sm:pr-4 border-b sm:border-b-0 border-transparent group-hover:border-surface-200 pb-3 sm:pb-0 transition-colors">
                     <h3 className="text-sm font-semibold text-text-primary">{cat.name}</h3>
-                    {cat.description && <p className="text-xs text-text-secondary mt-1 max-w-2xl truncate">{cat.description}</p>}
+                    {cat.description && <p className="text-xs text-text-secondary mt-1 max-w-full sm:max-w-2xl truncate">{cat.description}</p>}
                   </div>
                 )}
                 
                 {editing !== cat.id && (
-                  <div className="flex items-center gap-4 shrink-0">
-                    <div className="flex flex-col items-end">
+                  <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 w-full sm:w-auto">
+                    <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2 sm:gap-0">
                       <span className="text-sm font-medium text-text-primary">{cat.product_count || 0}</span>
                       <span className="text-[10px] uppercase font-semibold text-text-muted tracking-wider">Products</span>
                     </div>
                     
-                    <div className="h-8 w-px bg-surface-200 mx-2"></div>
+                    <div className="hidden sm:block h-8 w-px bg-surface-200 mx-2"></div>
                     
                     <div className="flex items-center gap-1">
                       <button 
