@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation, Link } from 'wouter';
 import { api } from '../../utils/api';
@@ -6,13 +6,27 @@ import PageHeader from '../../components/PageHeader';
 import DataTable from '../../components/DataTable';
 import FilterBar from '../../components/FilterBar';
 import { formatCurrency } from '../../utils/format';
-import { Plus } from 'lucide-react';
+import { Plus, CheckCircle2 } from 'lucide-react';
 
 export default function WEProducts() {
-  const [, navigate] = useLocation();
+  const [location, navigate] = useLocation();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [page, setPage] = useState(1);
+  const [savedMsg, setSavedMsg] = useState('');
+
+  // Show success banner if navigated back after save
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('saved') === '1') {
+      setSavedMsg('Product saved successfully!');
+      // Clear the ?saved=1 param without re-rendering
+      window.history.replaceState({}, '', window.location.pathname);
+      const t = setTimeout(() => setSavedMsg(''), 4000);
+      return () => clearTimeout(t);
+    }
+  }, [location]);
+
 
   const { data, isLoading } = useQuery({
     queryKey: ['products', search, category, page],
@@ -66,6 +80,12 @@ export default function WEProducts() {
 
   return (
     <div>
+      {savedMsg && (
+        <div className="mb-4 flex items-center gap-2 px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-700 font-medium">
+          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+          {savedMsg}
+        </div>
+      )}
       <PageHeader
         title="Product Catalogue"
         subtitle="All products available for ordering"

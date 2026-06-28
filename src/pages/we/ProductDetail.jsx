@@ -79,19 +79,12 @@ export default function WEProductDetail() {
 
   const save = useMutation({
     mutationFn: (formData) => isNew ? api.upload('/products', formData, 'POST') : api.upload(`/products/${id}`, formData, 'PATCH'),
-    onSuccess: (res) => {
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['products'] });
       qc.invalidateQueries({ queryKey: ['inventory'] });
       qc.invalidateQueries({ queryKey: ['categories'] });
-      setSuccess(isNew ? 'Product added successfully! Inventory updated.' : 'Product updated successfully!');
-      setTimeout(() => {
-        if (isNew) {
-          // After creating, go to inventory list so they can see the new item
-          navigate('/we/inventory');
-        } else {
-          navigate(`/we/products/${id}`);
-        }
-      }, 2000);
+      // Navigate immediately — close the form and show success on list page
+      navigate('/we/products?saved=1');
     },
     onError: (err) => {
       setError(err.message || 'Failed to save product');
