@@ -19,11 +19,11 @@ const STEPS = [
 ];
 
 const NEXT_STATUS = {
-  CONFIRMED: { action: 'start-picking', label: 'Start Picking', btnClass: 'bg-violet-600 text-white hover:bg-violet-700' },
-  PICKING: { action: 'complete-picking', label: 'Mark Picked', btnClass: 'bg-violet-600 text-white hover:bg-violet-700' },
-  PICKED: { action: 'start-packing', label: 'Start Packing', btnClass: 'bg-sky-600 text-white hover:bg-sky-700' },
-  PACKING: { action: 'complete-packing', label: 'Mark Packed', btnClass: 'bg-sky-600 text-white hover:bg-sky-700' },
-  PACKED: { action: 'dispatch', label: 'Dispatch Order', btnClass: 'bg-amber-600 text-white hover:bg-amber-700' },
+  CONFIRMED: { status: 'PICKING', label: 'Start Picking', btnClass: 'bg-violet-600 text-white hover:bg-violet-700' },
+  PICKING: { status: 'PICKED', label: 'Mark Picked', btnClass: 'bg-violet-600 text-white hover:bg-violet-700' },
+  PICKED: { status: 'PACKING', label: 'Start Packing', btnClass: 'bg-sky-600 text-white hover:bg-sky-700' },
+  PACKING: { status: 'PACKED', label: 'Mark Packed', btnClass: 'bg-sky-600 text-white hover:bg-sky-700' },
+  PACKED: { status: 'DISPATCHED', label: 'Dispatch Order', btnClass: 'bg-amber-600 text-white hover:bg-amber-700' },
 };
 
 export default function WEOrderDetail() {
@@ -46,12 +46,13 @@ export default function WEOrderDetail() {
   });
 
   const statusAction = useMutation({
-    mutationFn: ({ action, data }) => api.post(`/orders/${id}/${action}`, data || {}),
+    mutationFn: ({ status }) => api.patch(`/orders/${id}/status`, { status }),
     onSuccess: () => { qc.invalidateQueries(['order', id]); setModal(null); },
   });
 
   const assign = useMutation({
-    mutationFn: (ws_id) => api.patch(`/orders/${id}/assign`, { ws_id }),
+    // Send both current status and assigned_ws_id since the schema requires status
+    mutationFn: (ws_id) => api.patch(`/orders/${id}/status`, { status: order?.status, assigned_ws_id: ws_id }),
     onSuccess: () => { qc.invalidateQueries(['order', id]); },
   });
 
@@ -141,7 +142,7 @@ export default function WEOrderDetail() {
         confirmLabel={next?.label}
         loading={loading}
         onClose={() => setModal(null)}
-        onConfirm={async () => { setLoading(true); await statusAction.mutateAsync({ action: next.action }); setLoading(false); }}
+        onConfirm={async () => { setLoading(true); await statusAction.mutateAsync({ status: next.status }); setLoading(false); }}
       />
 
       {modal === 'assign' && (
