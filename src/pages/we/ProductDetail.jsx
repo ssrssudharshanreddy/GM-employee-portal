@@ -80,13 +80,18 @@ export default function WEProductDetail() {
   const save = useMutation({
     mutationFn: (formData) => isNew ? api.upload('/products', formData, 'POST') : api.upload(`/products/${id}`, formData, 'PATCH'),
     onSuccess: (res) => {
-      qc.invalidateQueries(['products']);
-      qc.invalidateQueries(['inventory']);
-      setSuccess(isNew ? 'Product added successfully!' : 'Product updated successfully!');
+      qc.invalidateQueries({ queryKey: ['products'] });
+      qc.invalidateQueries({ queryKey: ['inventory'] });
+      qc.invalidateQueries({ queryKey: ['categories'] });
+      setSuccess(isNew ? 'Product added successfully! Inventory updated.' : 'Product updated successfully!');
       setTimeout(() => {
-        const savedId = res?.id || res?.product?.id || id;
-        navigate(savedId && savedId !== 'new' ? `/we/products/${savedId}` : '/we/products');
-      }, 1500);
+        if (isNew) {
+          // After creating, go to inventory list so they can see the new item
+          navigate('/we/inventory');
+        } else {
+          navigate(`/we/products/${id}`);
+        }
+      }, 2000);
     },
     onError: (err) => {
       setError(err.message || 'Failed to save product');
@@ -233,10 +238,11 @@ export default function WEProductDetail() {
                 Pack Size (Amount) <span className="text-red-500">*</span>
               </label>
               <input
-                type="number"
+                type="text"
+                inputMode="decimal"
                 value={form.pack_size}
                 onChange={e => setForm({ ...form, pack_size: e.target.value })}
-                required min={0.01} step="any"
+                required
                 placeholder="e.g. 5"
                 className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
@@ -262,10 +268,11 @@ export default function WEProductDetail() {
                 Price (₹) <span className="text-red-500">*</span>
               </label>
               <input
-                type="number"
+                type="text"
+                inputMode="decimal"
                 value={form.price}
                 onChange={e => setForm({ ...form, price: e.target.value })}
-                required min={0} step="0.01"
+                required
                 placeholder="0.00"
                 className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
@@ -275,10 +282,10 @@ export default function WEProductDetail() {
                 GST %
               </label>
               <input
-                type="number"
+                type="text"
+                inputMode="decimal"
                 value={form.gst_percent}
                 onChange={e => setForm({ ...form, gst_percent: e.target.value })}
-                min={0} max={100} step="0.01"
                 placeholder="18"
                 className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
