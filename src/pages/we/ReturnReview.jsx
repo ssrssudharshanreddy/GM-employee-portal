@@ -25,6 +25,8 @@ export default function WEReturnReview() {
   const [modal, setModal] = useState(null);
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
+  const [wsId, setWsId] = useState('');
+  const [pickupDate, setPickupDate] = useState('');
 
   const { data, isLoading } = useQuery({
     queryKey: ['return', id],
@@ -32,8 +34,21 @@ export default function WEReturnReview() {
     enabled: !!id,
   });
 
+  const { data: wsStaff } = useQuery({
+    queryKey: ['employees', 'WS'],
+    queryFn: () => api.get('/employees', { role: 'WS', limit: 100 }).then(res => res.employees || res.data || []),
+  });
+
   const action = useMutation({
-    mutationFn: ({ act, data }) => api.patch(`/returns/${id}/status`, { status: act === 'approve' ? 'RETURN_APPROVED' : 'RETURN_REJECTED', rejection_reason: data?.notes }),
+    mutationFn: ({ act, data }) => {
+      const payload = { status: act === 'approve' ? 'RETURN_APPROVED' : 'RETURN_REJECTED' };
+      if (act === 'reject') payload.rejection_reason = data?.notes;
+      if (act === 'approve') {
+        payload.assigned_ws_id = wsId;
+        payload.pickup_scheduled_date = pickupDate;
+      }
+      return api.patch(`/returns/${id}/status`, payload);
+    },
     onSuccess: () => { qc.invalidateQueries(['return', id]); setModal(null); navigate('/we/returns'); },
   });
 
@@ -83,6 +98,18 @@ export default function WEReturnReview() {
                 <p className="text-sm">{ret.notes}</p>
               </div>
             )}
+            {(ret.proof_urls || []).length > 0 && (
+              <div className="mt-4 pt-4 border-t border-surface-200">
+                <p className="text-xs text-text-muted mb-2">Attached Proofs</p>
+                <div className="flex gap-2 overflow-x-auto">
+                  {ret.proof_urls.map((url, idx) => (
+                    <a key={idx} href={url} target="_blank" rel="noreferrer" className="block shrink-0">
+                      <img src={url} alt={`Proof ${idx + 1}`} className="h-20 w-20 object-cover rounded border border-surface-200 hover:border-brand-300" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="bg-white rounded-lg shadow-card p-6">
@@ -112,10 +139,31 @@ export default function WEReturnReview() {
       </div>
 
       <ConfirmModal open={modal === 'approve'} title="Approve Return"
-        consequenceText="Approving this return will notify the customer and schedule pickup."
         confirmLabel="Approve Return"
         loading={loading} onClose={() => setModal(null)}
-        onConfirm={async () => { setLoading(true); await action.mutateAsync({ act: 'approve' }); setLoading(false); }} />
+        onConfirm={async () => {
+          if (!wsId || !pickupDate) return alert('Please select a Warehouse Staff and Pickup Date.');
+          setLoading(true); await action.mutateAsync({ act: 'approve' }); setLoading(false); 
+        }}
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-1">Assign Warehouse Staff</label>
+            <select value={wsId} onChange={e => setWsId(e.target.value)}
+              className="w-full h-10 px-3 rounded-lg border border-surface-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none text-sm">
+              <option value="">Select Staff...</option>
+              {(wsStaff || []).map(s => (
+                <option key={s.id} value={s.id}>{s.name} ({s.employee_number})</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-1">Pickup Date</label>
+            <input type="date" value={pickupDate} onChange={e => setPickupDate(e.target.value)}
+              className="w-full h-10 px-3 rounded-lg border border-surface-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none text-sm" />
+          </div>
+        </div>
+      </ConfirmModal>
 
       <ConfirmModal open={modal === 'reject'} title="Reject Return"
         consequenceText="Rejecting this return will notify the customer with your reason."

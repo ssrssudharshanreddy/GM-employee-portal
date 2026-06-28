@@ -10,6 +10,7 @@ export default function ConfirmModal({
   cancelLabel = 'Cancel',
   confirmVariant = 'danger',
   loading,
+  children,
 }) {
   if (!open) return null;
 
@@ -33,6 +34,7 @@ export default function ConfirmModal({
               )}
             </div>
           </div>
+          {children && <div className="mt-6">{children}</div>}
         </div>
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-surface-200">
           <button
