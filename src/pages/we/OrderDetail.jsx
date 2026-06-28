@@ -9,7 +9,6 @@ import { formatDate, formatCurrency } from '../../utils/format';
 import ConfirmModal from '../../components/ConfirmModal';
 
 const STEPS = [
-  { status: 'PENDING', label: 'Pending' },
   { status: 'CONFIRMED', label: 'Confirmed' },
   { status: 'PROCESSING', label: 'Processing' },
   { status: 'PACKED', label: 'Packed' },

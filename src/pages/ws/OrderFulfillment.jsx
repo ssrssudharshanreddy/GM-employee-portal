@@ -11,7 +11,6 @@ import { formatDate, formatCurrency } from '../../utils/format';
 import { MapPin, Phone, Package } from 'lucide-react';
 
 const STEPS = [
-  { status: 'PENDING', label: 'Pending' },
   { status: 'CONFIRMED', label: 'Confirmed' },
   { status: 'PROCESSING', label: 'Processing' },
   { status: 'PACKED', label: 'Packed' },
@@ -45,7 +44,7 @@ export default function WSOrderFulfillment() {
   });
 
   const confirmDelivery = useMutation({
-    mutationFn: (delivery_pin) => api.post(`/orders/${id}/deliver`, { delivery_pin }),
+    mutationFn: (delivery_pin) => api.post(`/orders/${id}/deliver`, { pin: delivery_pin }),
     onSuccess: () => { qc.invalidateQueries(['order', id]); navigate('/ws/orders'); },
     onError: (err) => { setPinError(err.message || 'Invalid PIN. Please try again.'); setPin(''); },
   });
