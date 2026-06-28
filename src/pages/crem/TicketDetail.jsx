@@ -60,7 +60,7 @@ export default function CREMTicketDetail() {
                 <ArrowUp className="w-4 h-4" /> Escalate
               </button>
             )}
-            {['OPEN', 'IN_PROGRESS', 'ESCALATED'].includes(ticket.status) && (
+            {['OPEN', 'IN_PROGRESS', 'ESCALATED'].includes(ticket.status) && ['CRE', 'CREM', 'CEO'].includes(user?.role) && (
               <button onClick={() => updateStatus.mutate('RESOLVED')} className="px-3 py-2 text-sm font-medium bg-green-600 text-white rounded-md hover:bg-green-700">
                 Mark Resolved
               </button>
