@@ -13,6 +13,7 @@ const STEPS = [
   { status: 'PROCESSING', label: 'Processing' },
   { status: 'PACKED', label: 'Packed' },
   { status: 'DISPATCHED', label: 'Dispatched' },
+  { status: 'OUT_FOR_DELIVERY', label: 'Out for Delivery' },
   { status: 'DELIVERED', label: 'Delivered' },
 ];
 

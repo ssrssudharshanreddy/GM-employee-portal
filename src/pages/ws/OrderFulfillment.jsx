@@ -15,6 +15,7 @@ const STEPS = [
   { status: 'PROCESSING', label: 'Processing' },
   { status: 'PACKED', label: 'Packed' },
   { status: 'DISPATCHED', label: 'Dispatched' },
+  { status: 'OUT_FOR_DELIVERY', label: 'Out for Delivery' },
   { status: 'DELIVERED', label: 'Delivered' },
 ];
 
@@ -22,6 +23,7 @@ const NEXT_STATUS = {
   CONFIRMED: { status: 'PROCESSING', label: 'Start Processing', btnClass: 'bg-violet-600 text-white hover:bg-violet-700' },
   PROCESSING: { status: 'PACKED', label: 'Mark Packed', btnClass: 'bg-sky-600 text-white hover:bg-sky-700' },
   PACKED: { status: 'DISPATCHED', label: 'Dispatch Order', btnClass: 'bg-amber-600 text-white hover:bg-amber-700' },
+  DISPATCHED: { status: 'OUT_FOR_DELIVERY', label: 'Out for Delivery', btnClass: 'bg-orange-600 text-white hover:bg-orange-700' },
 };
 
 export default function WSOrderFulfillment() {
@@ -58,7 +60,7 @@ export default function WSOrderFulfillment() {
   if (isLoading) return <div className="animate-pulse"><div className="h-64 bg-surface-100 rounded-lg" /></div>;
   if (!order) return <div className="text-center py-12 text-text-muted">Order not found</div>;
 
-  const isDispatched = order.status === 'DISPATCHED';
+  const isOutForDelivery = order.status === 'OUT_FOR_DELIVERY';
   const next = NEXT_STATUS[order.status];
 
   return (
@@ -129,7 +131,7 @@ export default function WSOrderFulfillment() {
           </div>
 
           {/* PIN Entry for delivery */}
-          {isDispatched && (
+          {isOutForDelivery && (
             <div className="bg-white rounded-lg shadow-card p-6">
               <h2 className="text-base font-semibold mb-2">Confirm Delivery</h2>
               <p className="text-sm text-text-secondary mb-6">
