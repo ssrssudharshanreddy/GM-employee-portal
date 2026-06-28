@@ -11,9 +11,18 @@ import { formatDate, formatCurrency } from '../../utils/format';
 import { MapPin, Phone, Package } from 'lucide-react';
 
 const STEPS = [
-  { status: 'DISPATCHED', label: 'Order Dispatched' },
-  { status: 'DELIVERED', label: 'Delivered to Customer' },
+  { status: 'CONFIRMED', label: 'Confirmed' },
+  { status: 'PROCESSING', label: 'Processing' },
+  { status: 'PACKED', label: 'Packed' },
+  { status: 'DISPATCHED', label: 'Dispatched' },
+  { status: 'DELIVERED', label: 'Delivered' },
 ];
+
+const NEXT_STATUS = {
+  CONFIRMED: { status: 'PROCESSING', label: 'Start Processing', btnClass: 'bg-violet-600 text-white hover:bg-violet-700' },
+  PROCESSING: { status: 'PACKED', label: 'Mark Packed', btnClass: 'bg-sky-600 text-white hover:bg-sky-700' },
+  PACKED: { status: 'DISPATCHED', label: 'Dispatch Order', btnClass: 'bg-amber-600 text-white hover:bg-amber-700' },
+};
 
 export default function WSOrderFulfillment() {
   const [, params] = useRoute('/ws/orders/:id');
@@ -38,6 +47,11 @@ export default function WSOrderFulfillment() {
     onError: (err) => { setPinError(err.message || 'Invalid PIN. Please try again.'); setPin(''); },
   });
 
+  const statusAction = useMutation({
+    mutationFn: ({ status }) => api.patch(`/orders/${id}/status`, { status }),
+    onSuccess: () => { qc.invalidateQueries(['order', id]); setModal(null); },
+  });
+
   const order = data?.order || data;
   const items = order?.items || order?.order_items || [];
 
@@ -45,6 +59,7 @@ export default function WSOrderFulfillment() {
   if (!order) return <div className="text-center py-12 text-text-muted">Order not found</div>;
 
   const isDispatched = order.status === 'DISPATCHED';
+  const next = NEXT_STATUS[order.status];
 
   return (
     <div>
@@ -52,7 +67,17 @@ export default function WSOrderFulfillment() {
       <PageHeader
         title={order.order_number}
         subtitle={order.company_name}
-        actions={<StatusChip status={order.status} />}
+        actions={
+          <div className="flex gap-2 items-center">
+            <StatusChip status={order.status} />
+            {next && (
+              <button onClick={() => setModal('advance')}
+                className={`px-4 py-2 text-sm font-medium rounded-md ml-2 ${next.btnClass}`}>
+                {next.label}
+              </button>
+            )}
+          </div>
+        }
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -174,7 +199,18 @@ export default function WSOrderFulfillment() {
             )}
           </div>
         </div>
+        </div>
       </div>
+
+      <ConfirmModal
+        open={modal === 'advance'}
+        title={next?.label || ''}
+        consequenceText={`This will advance the order to the next stage.`}
+        confirmLabel={next?.label}
+        loading={loading}
+        onClose={() => setModal(null)}
+        onConfirm={async () => { setLoading(true); await statusAction.mutateAsync({ status: next.status }); setLoading(false); }}
+      />
     </div>
   );
 }

@@ -10,21 +10,11 @@ import ConfirmModal from '../../components/ConfirmModal';
 
 const STEPS = [
   { status: 'CONFIRMED', label: 'Confirmed' },
-  { status: 'PICKING', label: 'Picking' },
-  { status: 'PICKED', label: 'Picked' },
-  { status: 'PACKING', label: 'Packing' },
+  { status: 'PROCESSING', label: 'Processing' },
   { status: 'PACKED', label: 'Packed' },
   { status: 'DISPATCHED', label: 'Dispatched' },
   { status: 'DELIVERED', label: 'Delivered' },
 ];
-
-const NEXT_STATUS = {
-  CONFIRMED: { status: 'PICKING', label: 'Start Picking', btnClass: 'bg-violet-600 text-white hover:bg-violet-700' },
-  PICKING: { status: 'PICKED', label: 'Mark Picked', btnClass: 'bg-violet-600 text-white hover:bg-violet-700' },
-  PICKED: { status: 'PACKING', label: 'Start Packing', btnClass: 'bg-sky-600 text-white hover:bg-sky-700' },
-  PACKING: { status: 'PACKED', label: 'Mark Packed', btnClass: 'bg-sky-600 text-white hover:bg-sky-700' },
-  PACKED: { status: 'DISPATCHED', label: 'Dispatch Order', btnClass: 'bg-amber-600 text-white hover:bg-amber-700' },
-};
 
 export default function WEOrderDetail() {
   const [, params] = useRoute('/we/orders/:id');
@@ -45,11 +35,6 @@ export default function WEOrderDetail() {
     queryFn: () => api.get('/employees', { role: 'WS', status: 'ACTIVE' }),
   });
 
-  const statusAction = useMutation({
-    mutationFn: ({ status }) => api.patch(`/orders/${id}/status`, { status }),
-    onSuccess: () => { qc.invalidateQueries(['order', id]); setModal(null); },
-  });
-
   const assign = useMutation({
     // Send both current status and assigned_ws_id since the schema requires status
     mutationFn: (ws_id) => api.patch(`/orders/${id}/status`, { status: order?.status, assigned_ws_id: ws_id }),
@@ -59,7 +44,6 @@ export default function WEOrderDetail() {
   const order = data?.order || data;
   const items = order?.items || order?.order_items || [];
   const staff = wsStaff?.employees || wsStaff?.data || [];
-  const next = NEXT_STATUS[order?.status];
 
   if (isLoading) return <div className="animate-pulse"><div className="h-48 bg-surface-100 rounded-lg" /></div>;
   if (!order) return <div className="text-center py-12 text-text-muted">Order not found</div>;
@@ -72,12 +56,6 @@ export default function WEOrderDetail() {
         subtitle={`${order.company_name} · ${formatDate(order.created_at)}`}
         actions={
           <div className="flex gap-2">
-            {next && (
-              <button onClick={() => setModal('advance')}
-                className={`px-4 py-2 text-sm font-medium rounded-md ${next.btnClass}`}>
-                {next.label}
-              </button>
-            )}
             {!order.ws_id && (
               <button onClick={() => setModal('assign')} className="px-4 py-2 text-sm font-medium border border-surface-200 rounded-md hover:bg-surface-100 text-text-secondary">
                 Assign WS
@@ -134,16 +112,6 @@ export default function WEOrderDetail() {
           </div>
         </div>
       </div>
-
-      <ConfirmModal
-        open={modal === 'advance'}
-        title={next?.label || ''}
-        consequenceText={`This will advance the order to the next stage.`}
-        confirmLabel={next?.label}
-        loading={loading}
-        onClose={() => setModal(null)}
-        onConfirm={async () => { setLoading(true); await statusAction.mutateAsync({ status: next.status }); setLoading(false); }}
-      />
 
       {modal === 'assign' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
