@@ -11,6 +11,7 @@ import { formatDate, formatCurrency } from '../../utils/format';
 import { MapPin, Phone, Package } from 'lucide-react';
 
 const STEPS = [
+  { status: 'PENDING', label: 'Pending' },
   { status: 'CONFIRMED', label: 'Confirmed' },
   { status: 'PROCESSING', label: 'Processing' },
   { status: 'PACKED', label: 'Packed' },

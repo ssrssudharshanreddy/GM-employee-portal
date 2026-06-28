@@ -9,6 +9,7 @@ import { formatDate, formatCurrency } from '../../utils/format';
 import ConfirmModal from '../../components/ConfirmModal';
 
 const STEPS = [
+  { status: 'PENDING', label: 'Pending' },
   { status: 'CONFIRMED', label: 'Confirmed' },
   { status: 'PROCESSING', label: 'Processing' },
   { status: 'PACKED', label: 'Packed' },
@@ -38,7 +39,11 @@ export default function WEOrderDetail() {
 
   const assign = useMutation({
     // Send both current status and assigned_ws_id since the schema requires status
-    mutationFn: (ws_id) => api.patch(`/orders/${id}/status`, { status: order?.status, assigned_ws_id: ws_id }),
+    // Auto-advance to CONFIRMED if it's currently PENDING
+    mutationFn: (ws_id) => api.patch(`/orders/${id}/status`, { 
+      status: order?.status === 'PENDING' ? 'CONFIRMED' : order?.status, 
+      assigned_ws_id: ws_id 
+    }),
     onSuccess: () => { qc.invalidateQueries(['order', id]); },
   });
 
