@@ -41,10 +41,10 @@ export default function WEInventoryDetail() {
             <h2 className="text-base font-semibold mb-4">Stock Levels</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                ['In Stock', `${formatNumber(item.quantity)} ${item.unit}`],
-                ['Allocated', `${formatNumber(item.allocated_quantity)} ${item.unit}`],
-                ['Available', `${formatNumber((item.quantity || 0) - (item.allocated_quantity || 0))} ${item.unit}`],
-                ['Reorder At', `${formatNumber(item.reorder_threshold)} ${item.unit}`],
+                ['In Stock', `${formatNumber(item.quantity)} ${item.product?.specifications?.pack_size ? item.product.specifications.pack_size + ' ' : ''}${item.unit}`],
+                ['Allocated', `${formatNumber(item.allocated_quantity)} ${item.product?.specifications?.pack_size ? item.product.specifications.pack_size + ' ' : ''}${item.unit}`],
+                ['Available', `${formatNumber((item.quantity || 0) - (item.allocated_quantity || 0))} ${item.product?.specifications?.pack_size ? item.product.specifications.pack_size + ' ' : ''}${item.unit}`],
+                ['Reorder At', `${formatNumber(item.reorder_threshold)} ${item.product?.specifications?.pack_size ? item.product.specifications.pack_size + ' ' : ''}${item.unit}`],
               ].map(([k, v]) => (
                 <div key={k} className="p-4 bg-surface-50 rounded-lg text-center">
                   <p className="text-xs text-text-muted">{k}</p>
@@ -106,7 +106,7 @@ export default function WEInventoryDetail() {
           {[
             ['Product Code', item.product_code],
             ['Category', item.category_name || '—'],
-            ['Unit', item.unit],
+            ['Unit', `${item.product?.specifications?.pack_size ? item.product.specifications.pack_size + ' ' : ''}${item.unit}`],
             ['Price', `₹${item.price}`],
             ['GST', item.gst_percent ? `${item.gst_percent}%` : '—'],
           ].map(([k, v]) => (

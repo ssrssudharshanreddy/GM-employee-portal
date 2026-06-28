@@ -28,12 +28,12 @@ export default function WEInventory() {
     { key: 'gst_percent', label: 'GST %', render: (v) => v ? `${v}%` : '—' },
     { key: 'quantity', label: 'In Stock', render: (v, row) => (
       <span className={v <= (row.reorder_threshold || 0) ? 'font-bold text-red-600' : 'font-medium'}>
-        {formatNumber(v)} {row.unit}
+        {formatNumber(v)} {row.product?.specifications?.pack_size ? row.product.specifications.pack_size + ' ' : ''}{row.unit}
       </span>
     )},
-    { key: 'reorder_threshold', label: 'Reorder At', render: (v, row) => `${formatNumber(v)} ${row.unit}` },
-    { key: 'allocated_quantity', label: 'Allocated', render: (v, row) => `${formatNumber(v)} ${row.unit}` },
-    { key: 'available_quantity', label: 'Available', render: (v, row) => `${formatNumber(v || (row.quantity - (row.allocated_quantity || 0)))} ${row.unit}` },
+    { key: 'reorder_threshold', label: 'Reorder At', render: (v, row) => `${formatNumber(v)} ${row.product?.specifications?.pack_size ? row.product.specifications.pack_size + ' ' : ''}${row.unit}` },
+    { key: 'allocated_quantity', label: 'Allocated', render: (v, row) => `${formatNumber(v)} ${row.product?.specifications?.pack_size ? row.product.specifications.pack_size + ' ' : ''}${row.unit}` },
+    { key: 'available_quantity', label: 'Available', render: (v, row) => `${formatNumber(v || (row.quantity - (row.allocated_quantity || 0)))} ${row.product?.specifications?.pack_size ? row.product.specifications.pack_size + ' ' : ''}${row.unit}` },
   ];
 
   return (
