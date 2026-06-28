@@ -23,7 +23,6 @@ export default function CRETeam() {
     { key: 'status', label: 'Status', render: (v) => <StatusChip status={v} /> },
     { key: 'customer_count', label: 'Customers', render: (v) => v ?? '—' },
     { key: 'open_tickets', label: 'Open Tickets', render: (v) => v ?? '—' },
-    { key: 'sla_compliance', label: 'SLA %', render: (v) => formatPercent(v) },
   ];
 
   return (
