@@ -24,12 +24,12 @@ export default function AEPaymentReview() {
   });
 
   const verify = useMutation({
-    mutationFn: () => api.post(`/payments/${id}/verify`, {}),
+    mutationFn: () => api.patch(`/payments/${id}/verify`, { status: 'VERIFIED' }),
     onSuccess: () => { qc.invalidateQueries(['payment', id]); navigate('/ae/payments'); },
   });
 
   const reject = useMutation({
-    mutationFn: (reason) => api.post(`/payments/${id}/reject`, { reason }),
+    mutationFn: (reason) => api.patch(`/payments/${id}/verify`, { status: 'REJECTED', rejection_reason: reason }),
     onSuccess: () => { qc.invalidateQueries(['payment', id]); navigate('/ae/payments'); },
   });
 
@@ -72,7 +72,7 @@ export default function AEPaymentReview() {
                 ['Amount', formatCurrency(payment.amount)],
                 ['Method', payment.payment_mode?.replace(/_/g, ' ')],
                 ['Reference No.', payment.reference_number || '—'],
-                ['Bank/UPI', payment.bank_name || payment.upi_id || '—'],
+                ['Bank', payment.bank_name || '—'],
                 ['Payment Date', formatDate(payment.payment_date)],
                 ['Status', <StatusChip status={payment.status} />],
                 ['Invoice', payment.invoices?.invoice_number || '—'],
