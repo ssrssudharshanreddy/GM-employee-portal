@@ -199,7 +199,6 @@ export default function WSOrderFulfillment() {
             )}
           </div>
         </div>
-        </div>
       </div>
 
       <ConfirmModal
