@@ -28,18 +28,18 @@ export default function AECreditManagement() {
   });
 
   const updateCredit = useMutation({
-    mutationFn: (d) => api.patch(`/customers/${id}/credit`, d),
+    mutationFn: (d) => api.patch(`/credit-accounts/customer/${id}/limit`, d),
     onSuccess: () => { qc.invalidateQueries(['customer', id]); setSuccess('Credit terms updated.'); setModal(null); },
     onError: (err) => setError(err.message),
   });
 
   const freezeCredit = useMutation({
-    mutationFn: () => api.post(`/customers/${id}/freeze-credit`, {}),
+    mutationFn: () => api.post(`/credit-accounts/customer/${id}/freeze`, {}),
     onSuccess: () => { qc.invalidateQueries(['customer', id]); setModal(null); },
   });
 
   const unfreezeCredit = useMutation({
-    mutationFn: () => api.post(`/customers/${id}/unfreeze-credit`, {}),
+    mutationFn: () => api.post(`/credit-accounts/customer/${id}/unfreeze`, {}),
     onSuccess: () => { qc.invalidateQueries(['customer', id]); setModal(null); },
   });
 
