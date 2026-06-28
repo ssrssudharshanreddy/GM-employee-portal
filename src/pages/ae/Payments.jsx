@@ -29,8 +29,8 @@ export default function AEPayments() {
   const total = data?.total || 0;
 
   const columns = [
-    { key: 'company_name', label: 'Customer' },
-    { key: 'payment_method', label: 'Method', render: (v) => v?.replace(/_/g,' ') || '—' },
+    { key: 'customer', label: 'Customer', render: (_, row) => row.customer_profiles?.company_name || '—' },
+    { key: 'payment_mode', label: 'Method', render: (v) => v?.replace(/_/g,' ') || '—' },
     { key: 'amount', label: 'Amount', render: (v) => <span className="font-semibold">{formatCurrency(v)}</span> },
     { key: 'status', label: 'Status', render: (v) => <StatusChip status={v} /> },
     { key: 'reference_number', label: 'Reference', render: (v) => <span className="font-mono text-xs">{v || '—'}</span> },

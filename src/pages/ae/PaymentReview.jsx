@@ -44,7 +44,7 @@ export default function AEPaymentReview() {
     <div>
       <Link href="/ae/payments" className="text-sm text-brand-600 hover:underline">← Payments</Link>
       <PageHeader
-        title={`Payment from ${payment.company_name}`}
+        title={`Payment from ${payment.customer_profiles?.company_name || 'Unknown'}`}
         subtitle={formatDateTime(payment.created_at)}
         actions={
           isPending && (
@@ -68,14 +68,14 @@ export default function AEPaymentReview() {
             <h2 className="text-base font-semibold mb-4">Payment Details</h2>
             <dl className="grid grid-cols-2 gap-4 text-sm">
               {[
-                ['Customer', payment.company_name],
+                ['Customer', payment.customer_profiles?.company_name],
                 ['Amount', formatCurrency(payment.amount)],
-                ['Method', payment.payment_method?.replace(/_/g, ' ')],
+                ['Method', payment.payment_mode?.replace(/_/g, ' ')],
                 ['Reference No.', payment.reference_number || '—'],
                 ['Bank/UPI', payment.bank_name || payment.upi_id || '—'],
                 ['Payment Date', formatDate(payment.payment_date)],
                 ['Status', <StatusChip status={payment.status} />],
-                ['Invoice(s)', payment.invoice_numbers || '—'],
+                ['Invoice', payment.invoices?.invoice_number || '—'],
               ].map(([k, v]) => (
                 <div key={k}><dt className="text-xs text-text-muted">{k}</dt><dd className="font-medium mt-0.5">{v}</dd></div>
               ))}
@@ -83,10 +83,17 @@ export default function AEPaymentReview() {
           </div>
 
           {/* Proof of payment */}
-          {payment.proof_url && (
-            <div className="bg-white rounded-lg shadow-card p-6">
+          {(payment.proof_url_signed || payment.proof_url) && (
+            <div className="bg-white rounded-lg shadow-card p-6 flex flex-col">
               <h2 className="text-base font-semibold mb-4">Proof of Payment</h2>
-              <img src={payment.proof_url} alt="Payment proof" className="max-w-full rounded-lg border border-surface-200" />
+              {payment.proof_file_name?.toLowerCase().endsWith('.pdf') ? (
+                <iframe src={payment.proof_url_signed || payment.proof_url} className="w-full h-96 border border-surface-200 rounded-lg" />
+              ) : (
+                <img src={payment.proof_url_signed || payment.proof_url} alt="Payment proof" className="max-w-full rounded-lg border border-surface-200" />
+              )}
+              <a href={payment.proof_url_signed || payment.proof_url} target="_blank" rel="noreferrer" className="mt-4 text-brand-600 text-sm font-medium hover:underline inline-block w-fit">
+                Open in new tab ↗
+              </a>
             </div>
           )}
         </div>
@@ -109,7 +116,7 @@ export default function AEPaymentReview() {
       <ConfirmModal
         open={modal === 'verify'}
         title="Verify Payment"
-        consequenceText={`Confirming this payment of ${formatCurrency(payment.amount)} from ${payment.company_name} will update their outstanding balance.`}
+        consequenceText={`Confirming this payment of ${formatCurrency(payment.amount)} from ${payment.customer_profiles?.company_name} will update their outstanding balance.`}
         confirmLabel="Yes, Verify"
         loading={loading}
         onClose={() => setModal(null)}
