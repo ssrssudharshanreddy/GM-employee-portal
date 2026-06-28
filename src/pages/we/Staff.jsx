@@ -23,7 +23,7 @@ export default function WEStaff() {
     { key: 'phone', label: 'Phone', render: (v) => v || '—' },
     { key: 'status', label: 'Status', render: (v) => <StatusChip status={v} /> },
     { key: 'deliveries_today', label: "Today's Deliveries", render: (v) => formatNumber(v) },
-    { key: 'deliveries_total', label: 'Total Deliveries', render: (v) => formatNumber(v) },
+    { key: 'returns_today', label: "Today's Returns", render: (v) => formatNumber(v) },
   ];
 
   return (
