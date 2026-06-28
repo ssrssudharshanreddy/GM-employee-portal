@@ -18,8 +18,6 @@ const NAV = {
     { label: 'Financials', href: '/ceo/financials', icon: DollarSign },
     { label: 'Warehouse', href: '/ceo/warehouse', icon: Warehouse },
     { label: 'Reports', href: '/ceo/reports', icon: BarChart2 },
-    { label: 'Alerts', href: '/ceo/alerts', icon: AlertTriangle },
-    { label: 'Audit Log', href: '/ceo/audit', icon: Activity },
     { label: 'Settings', href: '/ceo/settings', icon: Settings },
   ],
   CRE: [
