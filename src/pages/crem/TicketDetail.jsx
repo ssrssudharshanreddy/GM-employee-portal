@@ -22,7 +22,7 @@ export default function CREMTicketDetail() {
   });
 
   const addMessage = useMutation({
-    mutationFn: (content) => api.post(`/tickets/${id}/messages`, { content }),
+    mutationFn: (content) => api.post(`/tickets/${id}/messages`, { message: content }),
     onSuccess: () => { qc.invalidateQueries(['ticket', id]); setReply(''); },
   });
 
@@ -37,7 +37,7 @@ export default function CREMTicketDetail() {
   });
 
   const ticket = data?.ticket || data;
-  const messages = ticket?.messages || [];
+  const messages = ticket?.ticket_messages || ticket?.messages || [];
 
   if (isLoading) return <div className="animate-pulse"><div className="h-48 bg-surface-100 rounded-lg" /></div>;
   if (!ticket) return <div className="text-center py-12 text-text-muted">Ticket not found</div>;
@@ -60,7 +60,7 @@ export default function CREMTicketDetail() {
                 <ArrowUp className="w-4 h-4" /> Escalate
               </button>
             )}
-            {ticket.status === 'IN_PROGRESS' && (
+            {['OPEN', 'IN_PROGRESS', 'ESCALATED'].includes(ticket.status) && (
               <button onClick={() => updateStatus.mutate('RESOLVED')} className="px-3 py-2 text-sm font-medium bg-green-600 text-white rounded-md hover:bg-green-700">
                 Mark Resolved
               </button>
@@ -80,14 +80,18 @@ export default function CREMTicketDetail() {
               ) : (
                 messages.map((msg, i) => {
                   const isEmployee = msg.sender_role !== 'CUSTOMER';
+                  const senderName = msg.employee_profiles?.full_name || msg.customer_profiles?.company_name || msg.sender_name || '?';
                   return (
                     <div key={i} className={`flex gap-3 ${isEmployee ? 'flex-row-reverse' : ''}`}>
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${isEmployee ? 'bg-brand-100 text-brand-700' : 'bg-slate-100 text-slate-700'}`}>
-                        {(msg.sender_name || '?')[0]?.toUpperCase()}
+                        {senderName[0]?.toUpperCase()}
                       </div>
                       <div className={`max-w-xs lg:max-w-md ${isEmployee ? 'items-end' : ''}`}>
+                        <div className="text-xs text-text-muted mb-1 text-center font-medium">
+                          {senderName}
+                        </div>
                         <div className={`rounded-xl p-3 text-sm ${isEmployee ? 'bg-brand-600 text-white' : 'bg-surface-100 text-text-primary'}`}>
-                          {msg.content}
+                          {msg.message || msg.content}
                         </div>
                         <p className="text-xs text-text-muted mt-1">{formatDateTime(msg.created_at)}</p>
                       </div>
@@ -123,10 +127,11 @@ export default function CREMTicketDetail() {
           <h2 className="text-sm font-semibold mb-4">Ticket Info</h2>
           {[
             ['Status', <StatusChip status={ticket.status} />],
+            ['Subject', ticket.subject],
             ['Priority', ticket.priority || '—'],
             ['Category', ticket.category?.replace(/_/g,' ') || '—'],
-            ['Customer', ticket.company_name],
-            ['Assigned To', ticket.assigned_to_name || 'Unassigned'],
+            ['Customer', ticket.customer_profiles?.company_name || ticket.company_name || '—'],
+            ['Assigned To', ticket.employee_profiles?.full_name || ticket.assigned_to_name || 'Unassigned'],
           ].map(([k, v]) => (
             <div key={k} className="flex justify-between py-2 border-b border-surface-100 last:border-0 text-sm">
               <span className="text-text-muted">{k}</span>
