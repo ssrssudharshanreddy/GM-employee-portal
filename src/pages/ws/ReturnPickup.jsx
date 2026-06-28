@@ -32,7 +32,7 @@ export default function WSReturnPickup() {
   });
 
   const confirmPickup = useMutation({
-    mutationFn: (return_pin) => api.post(`/returns/${id}/collect`, { return_pin }),
+    mutationFn: (return_pin) => api.post(`/returns/${id}/collect`, { pin: return_pin }),
     onSuccess: () => { qc.invalidateQueries(['return', id]); navigate('/ws/returns'); },
     onError: (err) => { setPinError(err.message || 'Invalid PIN'); setPin(''); },
   });

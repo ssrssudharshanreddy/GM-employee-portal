@@ -33,7 +33,7 @@ export default function WEReturnReview() {
   });
 
   const action = useMutation({
-    mutationFn: ({ act, data }) => api.post(`/returns/${id}/${act}`, data || {}),
+    mutationFn: ({ act, data }) => api.patch(`/returns/${id}/status`, { status: act === 'approve' ? 'RETURN_APPROVED' : 'RETURN_REJECTED', rejection_reason: data?.notes }),
     onSuccess: () => { qc.invalidateQueries(['return', id]); setModal(null); navigate('/we/returns'); },
   });
 
@@ -77,6 +77,12 @@ export default function WEReturnReview() {
                 <div key={k}><dt className="text-xs text-text-muted">{k}</dt><dd className="font-medium mt-0.5">{v || '—'}</dd></div>
               ))}
             </dl>
+            {ret.notes && (
+              <div className="mt-4 pt-4 border-t border-surface-200">
+                <p className="text-xs text-text-muted mb-1">Customer Description</p>
+                <p className="text-sm">{ret.notes}</p>
+              </div>
+            )}
           </div>
 
           <div className="bg-white rounded-lg shadow-card p-6">
