@@ -25,7 +25,7 @@ export default function CRETickets() {
   const columns = [
     { key: 'ticket_number', label: 'Ticket #', render: (v) => <span className="font-mono text-xs">{v}</span> },
     { key: 'subject', label: 'Subject' },
-    { key: 'company_name', label: 'Customer' },
+    { key: 'company_name', label: 'Customer', render: (v, row) => row.customer_profiles?.company_name || v || '—' },
     { key: 'category', label: 'Category', render: (v) => v?.replace(/_/g,' ') || '—' },
     { key: 'status', label: 'Status', render: (v) => <StatusChip status={v} /> },
     { key: 'created_at', label: 'Date', render: (v) => formatDate(v) },

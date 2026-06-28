@@ -27,7 +27,7 @@ export default function CREMTicketDetail() {
   });
 
   const updateStatus = useMutation({
-    mutationFn: (status) => api.patch(`/tickets/${id}/status`, { status }),
+    mutationFn: (status) => api.patch(`/tickets/${id}`, { status }),
     onSuccess: () => qc.invalidateQueries(['ticket', id]),
   });
 
@@ -128,7 +128,7 @@ export default function CREMTicketDetail() {
           {[
             ['Status', <StatusChip status={ticket.status} />],
             ['Subject', ticket.subject],
-            ['Priority', ticket.priority || '—'],
+            ['Description', messages[0]?.message || '—'],
             ['Category', ticket.category?.replace(/_/g,' ') || '—'],
             ['Customer', ticket.customer_profiles?.company_name || ticket.company_name || '—'],
             ['Assigned To', ticket.employee_profiles?.full_name || ticket.assigned_to_name || 'Unassigned'],

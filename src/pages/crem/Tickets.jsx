@@ -25,12 +25,8 @@ export default function CREMTickets() {
   const columns = [
     { key: 'ticket_number', label: 'Ticket #', render: (v) => <span className="font-mono text-xs">{v}</span> },
     { key: 'subject', label: 'Subject', render: (v) => <span className="line-clamp-1 max-w-xs">{v}</span> },
-    { key: 'company_name', label: 'Customer' },
+    { key: 'company_name', label: 'Customer', render: (v, row) => row.customer_profiles?.company_name || v || '—' },
     { key: 'category', label: 'Category', render: (v) => v?.replace(/_/g,' ') || '—' },
-    { key: 'priority', label: 'Priority', render: (v) => {
-      const styles = { HIGH: 'text-red-600', MEDIUM: 'text-amber-600', LOW: 'text-text-muted' };
-      return <span className={`text-xs font-medium ${styles[v] || ''}`}>{v || '—'}</span>;
-    }},
     { key: 'status', label: 'Status', render: (v) => <StatusChip status={v} /> },
     { key: 'created_at', label: 'Date', render: (v) => formatDate(v) },
   ];

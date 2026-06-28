@@ -20,8 +20,7 @@ export default function CREEscalations() {
   const columns = [
     { key: 'ticket_number', label: 'Ticket #', render: (v) => <span className="font-mono text-xs">{v}</span> },
     { key: 'subject', label: 'Subject', render: (v) => <span className="truncate max-w-xs block">{v}</span> },
-    { key: 'company_name', label: 'Customer' },
-    { key: 'crem_name', label: 'Raised By' },
+    { key: 'company_name', label: 'Customer', render: (v, row) => row.customer_profiles?.company_name || v || '—' },
     { key: 'status', label: 'Status', render: (v) => <StatusChip status={v} /> },
     { key: 'created_at', label: 'Date', render: (v) => formatDate(v) },
   ];
