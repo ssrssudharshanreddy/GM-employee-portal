@@ -32,15 +32,17 @@ export default function CEOFinancials() {
         <div className="bg-white rounded-lg shadow-card p-6">
           <h2 className="text-base font-semibold text-text-primary mb-4">Revenue by Month</h2>
           {revenueByMonth.length > 0 ? (
-            <ResponsiveContainer width="100%" height={240}>
-              <BarChart data={revenueByMonth}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                <YAxis tickFormatter={(v) => `₹${(v/100000).toFixed(0)}L`} tick={{ fontSize: 11, fill: '#94a3b8' }} />
-                <Tooltip formatter={(v) => formatCurrency(v)} />
-                <Bar dataKey="revenue" fill="#2563eb" radius={[4,4,0,0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="h-60 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={revenueByMonth}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94a3b8' }} />
+                  <YAxis tickFormatter={(v) => `₹${(v/100000).toFixed(0)}L`} tick={{ fontSize: 11, fill: '#94a3b8' }} />
+                  <Tooltip formatter={(v) => formatCurrency(v)} />
+                  <Bar dataKey="revenue" fill="#2563eb" radius={[4,4,0,0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           ) : (
             <div className="h-60 flex items-center justify-center text-text-muted text-sm">No revenue data available</div>
           )}
