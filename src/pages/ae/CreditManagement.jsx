@@ -15,6 +15,7 @@ export default function AECreditManagement() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [freezeReason, setFreezeReason] = useState('');
 
   const { data, isLoading } = useQuery({
     queryKey: ['customer', id],
@@ -34,8 +35,8 @@ export default function AECreditManagement() {
   });
 
   const freezeCredit = useMutation({
-    mutationFn: () => api.post(`/credit-accounts/customer/${id}/freeze`, {}),
-    onSuccess: () => { qc.invalidateQueries(['customer', id]); setModal(null); },
+    mutationFn: () => api.post(`/credit-accounts/customer/${id}/freeze`, { reason: freezeReason || 'Admin action' }),
+    onSuccess: () => { qc.invalidateQueries(['customer', id]); setModal(null); setFreezeReason(''); },
   });
 
   const unfreezeCredit = useMutation({
@@ -65,6 +66,7 @@ export default function AECreditManagement() {
               ['Credit Days', c?.credit_days ? `${c.credit_days} days` : '—'],
               ['Used Credit', formatCurrency(c?.used_credit)],
               ['Available', formatCurrency((c?.credit_limit || 0) - (c?.used_credit || 0))],
+              ['Status', c?.is_frozen ? 'Frozen' : 'Active']
             ].map(([k, v]) => (
               <div key={k} className="p-3 bg-surface-50 rounded-lg">
                 <p className="text-xs text-text-muted">{k}</p>
@@ -103,12 +105,15 @@ export default function AECreditManagement() {
           <h2 className="text-base font-semibold mb-2">Credit Freeze</h2>
           <p className="text-sm text-text-secondary mb-4">Freezing credit prevents the customer from placing new orders.</p>
           <div className="flex gap-3">
-            <button onClick={() => setModal('freeze')} className="px-4 py-2 text-sm font-medium bg-red-100 text-red-700 rounded-md hover:bg-red-200">
-              Freeze Credit
-            </button>
-            <button onClick={() => setModal('unfreeze')} className="px-4 py-2 text-sm font-medium bg-green-100 text-green-700 rounded-md hover:bg-green-200">
-              Unfreeze Credit
-            </button>
+            {!c?.is_frozen ? (
+              <button onClick={() => setModal('freeze')} className="px-4 py-2 text-sm font-medium bg-red-100 text-red-700 rounded-md hover:bg-red-200">
+                Freeze Credit
+              </button>
+            ) : (
+              <button onClick={() => setModal('unfreeze')} className="px-4 py-2 text-sm font-medium bg-green-100 text-green-700 rounded-md hover:bg-green-200">
+                Unfreeze Credit
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -120,7 +125,12 @@ export default function AECreditManagement() {
       <ConfirmModal open={modal === 'freeze'} title="Freeze Credit"
         consequenceText="Customer cannot place orders until credit is unfrozen." confirmLabel="Freeze" confirmVariant="danger" loading={loading}
         onClose={() => setModal(null)}
-        onConfirm={async () => { setLoading(true); await freezeCredit.mutateAsync(); setLoading(false); }} />
+        onConfirm={async () => { setLoading(true); await freezeCredit.mutateAsync(); setLoading(false); }}>
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-text-secondary mb-1">Reason for freezing</label>
+            <input type="text" value={freezeReason} onChange={(e) => setFreezeReason(e.target.value)} placeholder="e.g. Payment overdue" className="w-full px-3 py-2 text-sm border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500" required />
+          </div>
+      </ConfirmModal>
       <ConfirmModal open={modal === 'unfreeze'} title="Unfreeze Credit"
         consequenceText="Customer will be able to place orders again." confirmLabel="Unfreeze" loading={loading}
         onClose={() => setModal(null)}
