@@ -33,6 +33,7 @@ export default function WEProductDetail() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isInitialized, setIsInitialized] = useState(false);
   
   // Image states
   const [existingImages, setExistingImages] = useState([]);
@@ -56,7 +57,7 @@ export default function WEProductDetail() {
   const categories = catData?.data ?? [];
 
   useEffect(() => {
-    if (data) {
+    if (data && !isInitialized) {
       const p = data?.product || data;
       const inv = p.inventory;
       setForm({
@@ -72,8 +73,9 @@ export default function WEProductDetail() {
         is_active: p.is_active !== false,
       });
       setExistingImages(p.images || []);
+      setIsInitialized(true);
     }
-  }, [data]);
+  }, [data, isInitialized]);
 
   const save = useMutation({
     mutationFn: (formData) => isNew ? api.upload('/products', formData, 'POST') : api.upload(`/products/${id}`, formData, 'PATCH'),
