@@ -32,6 +32,7 @@ export default function WEProductDetail() {
   
   const [form, setForm] = useState(EMPTY_FORM);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   
   // Image states
   const [existingImages, setExistingImages] = useState([]);
@@ -79,10 +80,16 @@ export default function WEProductDetail() {
     onSuccess: (res) => {
       qc.invalidateQueries(['products']);
       qc.invalidateQueries(['inventory']);
-      const savedId = res?.id || res?.product?.id || id;
-      navigate(savedId && savedId !== 'new' ? `/we/products/${savedId}` : '/we/products');
+      setSuccess(isNew ? 'Product added successfully!' : 'Product updated successfully!');
+      setTimeout(() => {
+        const savedId = res?.id || res?.product?.id || id;
+        navigate(savedId && savedId !== 'new' ? `/we/products/${savedId}` : '/we/products');
+      }, 1500);
     },
-    onError: (err) => setError(err.message || 'Failed to save product'),
+    onError: (err) => {
+      setError(err.message || 'Failed to save product');
+      setSuccess('');
+    },
   });
 
   function handleFileChange(e) {
@@ -103,6 +110,7 @@ export default function WEProductDetail() {
   function handleSubmit(e) {
     e.preventDefault();
     setError('');
+    setSuccess('');
     
     if (!form.category_id) { setError('Please select a category'); return; }
     if (!form.pack_size) { setError('Please enter a pack size'); return; }
@@ -174,6 +182,14 @@ export default function WEProductDetail() {
       <div className="max-w-3xl bg-white rounded-lg shadow-card p-6">
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>
+        )}
+        {success && (
+          <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-700 font-medium flex items-center gap-2">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            {success}
+          </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
