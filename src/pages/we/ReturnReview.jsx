@@ -9,12 +9,13 @@ import { formatDate } from '../../utils/format';
 import ConfirmModal from '../../components/ConfirmModal';
 
 const STEPS = [
-  { status: 'REQUESTED', label: 'Requested by Customer' },
+  { status: 'RETURN_REQUESTED', label: 'Requested by Customer' },
   { status: 'UNDER_REVIEW', label: 'Under Review' },
   { status: 'RETURN_APPROVED', label: 'Approved' },
   { status: 'PICKUP_SCHEDULED', label: 'Pickup Scheduled' },
   { status: 'COLLECTED', label: 'Collected' },
-  { status: 'COMPLETED', label: 'Return Completed' },
+  { status: 'RETURNED_TO_WAREHOUSE', label: 'Received at Warehouse' },
+  { status: 'RETURN_COMPLETED', label: 'Return Completed' },
 ];
 
 export default function WEReturnReview() {
@@ -47,6 +48,10 @@ export default function WEReturnReview() {
         payload = { status: 'RETURN_APPROVED', assigned_ws_id: wsId };
       } else if (act === 'reject') {
         payload = { status: 'RETURN_REJECTED', rejection_reason: data?.notes };
+      } else if (act === 'receive') {
+        payload = { status: 'RETURNED_TO_WAREHOUSE' };
+      } else if (act === 'complete') {
+        payload = { status: 'RETURN_COMPLETED' };
       }
       return api.patch(`/returns/${id}/status`, payload);
     },
@@ -60,6 +65,8 @@ export default function WEReturnReview() {
 
   const isRequested = ret.status === 'RETURN_REQUESTED';
   const isPending = ret.status === 'UNDER_REVIEW';
+  const isCollected = ret.status === 'COLLECTED';
+  const isReturned = ret.status === 'RETURNED_TO_WAREHOUSE';
 
   return (
     <div>
@@ -79,6 +86,16 @@ export default function WEReturnReview() {
                 <button onClick={() => setModal('reject')} className="px-4 py-2 text-sm font-medium bg-red-100 text-red-700 rounded-md hover:bg-red-200">Reject</button>
                 <button onClick={() => setModal('approve')} className="px-4 py-2 text-sm font-medium bg-green-600 text-white rounded-md hover:bg-green-700">Approve Return</button>
               </>
+            )}
+            {isCollected && (
+              <button onClick={() => action.mutate({ act: 'receive' })} disabled={action.isPending} className="px-4 py-2 text-sm font-medium bg-brand-600 text-white rounded-md hover:bg-brand-700 disabled:opacity-50">
+                Mark as Received
+              </button>
+            )}
+            {isReturned && (
+              <button onClick={() => setModal('complete')} className="px-4 py-2 text-sm font-medium bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50">
+                Complete Return
+              </button>
             )}
           </div>
         }
@@ -174,6 +191,12 @@ export default function WEReturnReview() {
         confirmLabel="Reject Return" confirmVariant="danger"
         loading={loading} onClose={() => setModal(null)}
         onConfirm={async () => { setLoading(true); await action.mutateAsync({ act: 'reject', data: { notes } }); setLoading(false); }} />
+
+      <ConfirmModal open={modal === 'complete'} title="Complete Return"
+        consequenceText="This will finalize the return and generate a credit note for the customer. This action cannot be undone."
+        confirmLabel="Complete Return"
+        loading={loading} onClose={() => setModal(null)}
+        onConfirm={async () => { setLoading(true); await action.mutateAsync({ act: 'complete' }); setLoading(false); }} />
     </div>
   );
 }
