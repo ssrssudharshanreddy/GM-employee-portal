@@ -27,7 +27,6 @@ const NAV = {
     { label: 'My Team', href: '/cre/team', icon: UserCheck },
     { label: 'Escalations', href: '/cre/escalations', icon: AlertTriangle },
     { label: 'Tickets', href: '/cre/tickets', icon: MessageSquare },
-    { label: 'Reports', href: '/cre/reports', icon: BarChart2 },
   ],
   CREM: [
     { label: 'Dashboard', href: '/crem', icon: LayoutDashboard },
@@ -55,7 +54,6 @@ const NAV = {
     { label: 'Categories', href: '/we/categories', icon: Tags },
     { label: 'Inventory', href: '/we/inventory', icon: Archive },
     { label: 'Orders', href: '/we/orders', icon: ShoppingCart },
-    { label: 'Deliveries', href: '/we/deliveries', icon: Truck },
     { label: 'Returns', href: '/we/returns', icon: RotateCcw },
     { label: 'Staff', href: '/we/staff', icon: UserCheck },
     { label: 'Reports', href: '/we/reports', icon: BarChart2 },

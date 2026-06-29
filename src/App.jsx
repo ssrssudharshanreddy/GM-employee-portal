@@ -37,6 +37,7 @@ import CREMDashboard from './pages/crem/CREMDashboard';
 import CREMCustomers from './pages/crem/Customers';
 import CREMCustomerActivity from './pages/crem/CustomerActivity';
 import CREMLeads from './pages/crem/Leads';
+import CREMNewLead from './pages/crem/NewLead';
 import CREMLeadDetail from './pages/crem/LeadDetail';
 import CREMVisits from './pages/crem/Visits';
 import CREMFollowUps from './pages/crem/FollowUps';
@@ -230,6 +231,9 @@ function AppRoutes() {
       </Route>
       <Route path="/crem/customers">
         <RequireAuth roles={['CREM', 'CRE', 'CEO']}><AppShell><CREMCustomers /></AppShell></RequireAuth>
+      </Route>
+      <Route path="/crem/leads/new">
+        <RequireAuth roles={['CREM', 'CRE', 'CEO']}><AppShell><CREMNewLead /></AppShell></RequireAuth>
       </Route>
       <Route path="/crem/leads/:id">
         <RequireAuth roles={['CREM', 'CRE', 'CEO']}><AppShell><CREMLeadDetail /></AppShell></RequireAuth>
