@@ -41,11 +41,12 @@ export default function WEReturnReview() {
 
   const action = useMutation({
     mutationFn: ({ act, data }) => {
-      const payload = { status: act === 'approve' ? 'RETURN_APPROVED' : 'RETURN_REJECTED' };
-      if (act === 'reject') payload.rejection_reason = data?.notes;
-      if (act === 'approve') {
-        payload.assigned_ws_id = wsId;
-        payload.pickup_scheduled_date = pickupDate;
+      let payload = {};
+      if (act === 'start_review') payload = { status: 'UNDER_REVIEW' };
+      else if (act === 'approve') {
+        payload = { status: 'RETURN_APPROVED', assigned_ws_id: wsId, pickup_scheduled_date: pickupDate };
+      } else if (act === 'reject') {
+        payload = { status: 'RETURN_REJECTED', rejection_reason: data?.notes };
       }
       return api.patch(`/returns/${id}/status`, payload);
     },
@@ -57,6 +58,7 @@ export default function WEReturnReview() {
   if (isLoading) return <div className="animate-pulse"><div className="h-48 bg-surface-100 rounded-lg" /></div>;
   if (!ret) return <div className="text-center py-12 text-text-muted">Return not found</div>;
 
+  const isRequested = ret.status === 'RETURN_REQUESTED';
   const isPending = ret.status === 'UNDER_REVIEW';
 
   return (
@@ -66,12 +68,19 @@ export default function WEReturnReview() {
         title={ret.return_number}
         subtitle={`${ret.company_name} · Requested ${formatDate(ret.created_at)}`}
         actions={
-          isPending && (
-            <div className="flex gap-2">
-              <button onClick={() => setModal('reject')} className="px-4 py-2 text-sm font-medium bg-red-100 text-red-700 rounded-md hover:bg-red-200">Reject</button>
-              <button onClick={() => setModal('approve')} className="px-4 py-2 text-sm font-medium bg-green-600 text-white rounded-md hover:bg-green-700">Approve Return</button>
-            </div>
-          )
+          <div className="flex gap-2">
+            {isRequested && (
+              <button onClick={() => action.mutate({ act: 'start_review' })} disabled={action.isPending} className="px-4 py-2 text-sm font-medium bg-brand-600 text-white rounded-md hover:bg-brand-700 disabled:opacity-50">
+                Start Review
+              </button>
+            )}
+            {isPending && (
+              <>
+                <button onClick={() => setModal('reject')} className="px-4 py-2 text-sm font-medium bg-red-100 text-red-700 rounded-md hover:bg-red-200">Reject</button>
+                <button onClick={() => setModal('approve')} className="px-4 py-2 text-sm font-medium bg-green-600 text-white rounded-md hover:bg-green-700">Approve Return</button>
+              </>
+            )}
+          </div>
         }
       />
 
