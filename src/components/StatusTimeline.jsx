@@ -2,11 +2,14 @@ import { Check } from 'lucide-react';
 import { formatDateTime } from '../utils/format';
 
 export default function StatusTimeline({ steps = [], currentStatus }) {
+  const currentIndex = steps.findIndex(s => s.status === currentStatus);
+  const isDelivered = currentStatus === 'DELIVERED';
+
   return (
     <ol className="relative space-y-4">
       {steps.map((step, i) => {
-        const done = step.completed || (currentStatus && steps.slice(0, i + 1).some(s => s.status === currentStatus));
-        const current = step.status === currentStatus;
+        const done = step.completed || (currentIndex > i) || (isDelivered && currentIndex === i);
+        const current = currentIndex === i && !isDelivered;
         return (
           <li key={i} className="flex gap-4">
             <div className="flex flex-col items-center">
