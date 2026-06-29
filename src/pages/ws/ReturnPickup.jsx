@@ -7,7 +7,8 @@ import StatusChip from '../../components/StatusChip';
 import PINInput from '../../components/PINInput';
 import StatusTimeline from '../../components/StatusTimeline';
 import { formatDate } from '../../utils/format';
-import { MapPin, Package } from 'lucide-react';
+import { MapPin, Package, Calendar } from 'lucide-react';
+import ConfirmModal from '../../components/ConfirmModal';
 
 const STEPS = [
   { status: 'RETURN_APPROVED', label: 'Return Approved' },
@@ -24,6 +25,8 @@ export default function WSReturnPickup() {
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState('');
   const [showPinEntry, setShowPinEntry] = useState(false);
+  const [scheduleModal, setScheduleModal] = useState(false);
+  const [pickupDate, setPickupDate] = useState('');
 
   const { data, isLoading } = useQuery({
     queryKey: ['return', id],
@@ -37,12 +40,18 @@ export default function WSReturnPickup() {
     onError: (err) => { setPinError(err.message || 'Invalid PIN'); setPin(''); },
   });
 
+  const schedulePickup = useMutation({
+    mutationFn: (date) => api.patch(`/returns/${id}/status`, { status: 'PICKUP_SCHEDULED', pickup_scheduled_date: date }),
+    onSuccess: () => { qc.invalidateQueries(['return', id]); setScheduleModal(false); },
+  });
+
   const ret = data?.return || data;
   const items = ret?.items || [];
 
   if (isLoading) return <div className="animate-pulse"><div className="h-64 bg-surface-100 rounded-lg" /></div>;
   if (!ret) return <div className="text-center py-12 text-text-muted">Return not found</div>;
 
+  const isApproved = ret.status === 'RETURN_APPROVED';
   const isScheduled = ret.status === 'PICKUP_SCHEDULED';
 
   return (
@@ -51,7 +60,16 @@ export default function WSReturnPickup() {
       <PageHeader
         title={ret.return_number}
         subtitle={ret.company_name}
-        actions={<StatusChip status={ret.status} />}
+        actions={
+          <div className="flex gap-2 items-center">
+            <StatusChip status={ret.status} />
+            {isApproved && (
+              <button onClick={() => setScheduleModal(true)} className="px-4 py-2 text-sm font-medium bg-brand-600 text-white rounded-md hover:bg-brand-700">
+                Schedule Pickup
+              </button>
+            )}
+          </div>
+        }
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -154,6 +172,23 @@ export default function WSReturnPickup() {
           </div>
         </div>
       </div>
+
+      <ConfirmModal open={scheduleModal} title="Schedule Pickup"
+        confirmLabel="Schedule"
+        loading={schedulePickup.isPending} onClose={() => setScheduleModal(false)}
+        onConfirm={() => {
+          if (!pickupDate) return alert('Please select a pickup date.');
+          schedulePickup.mutate(pickupDate);
+        }}
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-1">Pickup Date</label>
+            <input type="date" value={pickupDate} onChange={e => setPickupDate(e.target.value)}
+              className="w-full h-10 px-3 rounded-lg border border-surface-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none text-sm" />
+          </div>
+        </div>
+      </ConfirmModal>
     </div>
   );
 }
