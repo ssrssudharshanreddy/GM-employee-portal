@@ -25,6 +25,8 @@ export default function WEReturnReview() {
   const [modal, setModal] = useState(null);
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
+  const [wsId, setWsId] = useState('');
+  const [pickupDate, setPickupDate] = useState('');
 
   const { data, isLoading } = useQuery({
     queryKey: ['return', id],
@@ -32,14 +34,17 @@ export default function WEReturnReview() {
     enabled: !!id,
   });
 
-
+  const { data: wsStaff } = useQuery({
+    queryKey: ['employees', 'WS'],
+    queryFn: () => api.get('/employees', { role: 'WS', limit: 100 }).then(res => res.employees || res.data || []),
+  });
 
   const action = useMutation({
     mutationFn: ({ act, data }) => {
       let payload = {};
       if (act === 'start_review') payload = { status: 'UNDER_REVIEW' };
       else if (act === 'approve') {
-        payload = { status: 'RETURN_APPROVED' };
+        payload = { status: 'RETURN_APPROVED', assigned_ws_id: wsId };
       } else if (act === 'reject') {
         payload = { status: 'RETURN_REJECTED', rejection_reason: data?.notes };
       }
@@ -146,10 +151,22 @@ export default function WEReturnReview() {
         confirmLabel="Approve Return"
         loading={loading} onClose={() => setModal(null)}
         onConfirm={async () => {
+          if (!wsId) return alert('Please select a Warehouse Staff.');
           setLoading(true); await action.mutateAsync({ act: 'approve' }); setLoading(false); 
         }}
       >
-        <p className="text-sm text-text-secondary">Are you sure you want to approve this return request?</p>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-1">Assign Warehouse Staff</label>
+            <select value={wsId} onChange={e => setWsId(e.target.value)}
+              className="w-full h-10 px-3 rounded-lg border border-surface-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none text-sm">
+              <option value="">Select Staff...</option>
+              {(wsStaff || []).map(s => (
+                <option key={s.id} value={s.id}>{s.full_name} ({s.employee_code})</option>
+              ))}
+            </select>
+          </div>
+        </div>
       </ConfirmModal>
 
       <ConfirmModal open={modal === 'reject'} title="Reject Return"
